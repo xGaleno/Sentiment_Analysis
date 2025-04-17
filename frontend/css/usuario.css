@@ -1,3 +1,4 @@
+/* === ESTRUCTURA GENERAL === */
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -8,6 +9,7 @@ body {
     overflow: hidden;
 }
 
+/* === ENCABEZADO === */
 .header {
     width: 100%;
     background-color: #ffffff;
@@ -17,18 +19,6 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
     z-index: 10;
-}
-
-.back-arrow {
-    text-decoration: none;
-    font-size: 24px;
-    margin-right: 15px;
-    color: #4B0082;
-    transition: color 0.3s ease;
-}
-
-.back-arrow:hover {
-    color: #6200EA;
 }
 
 .logo {
@@ -43,6 +33,19 @@ body {
     color: #4B0082;
 }
 
+.back-arrow {
+    text-decoration: none;
+    font-size: 24px;
+    margin-right: 15px;
+    color: #4B0082;
+    transition: color 0.3s ease;
+}
+
+.back-arrow:hover {
+    color: #6200EA;
+}
+
+/* === CONTENEDOR DEL CHAT === */
 .chat-container {
     flex-grow: 1;
     display: flex;
@@ -60,8 +63,9 @@ body {
     height: calc(100% - 70px);
 }
 
+/* === MENSAJES DEL CHAT === */
 .chat-message {
-    font-size: 22px; /* Aumenta el tamaño de la fuente */
+    font-size: 22px;
     margin-bottom: 15px;
     padding: 12px 18px;
     border-radius: 18px;
@@ -77,14 +81,15 @@ body {
 }
 
 .chat-message.assistant {
-    font-weight: bold; /* Aplica negrita a las preguntas */
-    font-size: 22px; /* Aumenta el tamaño de la fuente */
     background-color: #f1f0f0;
     color: #333;
+    font-weight: bold;
+    font-size: 22px;
     align-self: flex-start;
     border-bottom-left-radius: 4px;
 }
 
+/* === FORMULARIO DE MENSAJE === */
 .chat-form {
     display: flex;
     align-items: center;
