@@ -1,0 +1,34 @@
+# 🔒 Claves y variables sensibles
+.env
+backend/.env
+backend/keys/firebase-credentials.json
+
+# 🗃️ Bases de datos locales
+*.db
+*.sqlite3
+
+# 🧪 Archivos de entorno virtual (Python)
+.venv/
+env/
+venv/
+backend/env/
+
+# ⚙️ Archivos de sistema y editor
+.vscode/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 🧼 Archivos grandes o binarios
+*.dll
+*.pyd
+*.exe
+*.log
+*.zip
+*.tar.gz
+*.rar
+
+# Mac/Windows
+.DS_Store
+Thumbs.db

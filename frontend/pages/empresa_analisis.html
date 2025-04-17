@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Empresa Análisis</title>
+    <link rel="stylesheet" href="/frontend/css/empresa_analisis.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+    <header class="header">
+        <a href="/frontend/pages/empresa_login.html" class="back-arrow">←</a>
+        <img src="/frontend/Assets/robot.png" alt="Logo Diha" class="logo">
+        <span class="diha-text">Diha</span>
+    </header>
+    <main>
+        <div class="statistics-box">
+            <h1>Statistics</h1>
+            <div class="year-filter">
+                <button id="filter2023">2023</button>
+                <button id="filter2024">2024</button>
+            </div>
+        </div>
+        
+        <!-- Primera fila con dos gráficos -->
+        <div class="charts-row">
+            <div class="chart-container">
+                <h2>Sentimiento Promedio por Intervalo de Tiempo</h2>
+                <canvas id="averageSentimentChart"></canvas>
+                <p>El "Sentimiento Promedio" muestra la tendencia general de los sentimientos a lo largo del tiempo.</p>
+            </div>
+            <div class="chart-container">
+                <h2>Varianza del Sentimiento por Intervalo de Tiempo</h2>
+                <canvas id="varianceSentimentChart"></canvas>
+                <p>La "Varianza del Sentimiento" muestra la dispersión de los sentimientos, ayudando a identificar la consistencia del sentimiento en un periodo específico.</p>
+            </div>
+        </div>
+
+       <!-- Segunda fila con dos gráficos -->
+        <div class="charts-row">
+            <div class="chart-container single-chart">
+                <h2>Distribución de Sentimientos</h2>
+                <canvas id="sentimentDistributionChart"></canvas>
+                <p>La "Distribución de Sentimientos" muestra el porcentaje de comentarios positivos, neutros y negativos.</p>
+            </div>
+            <!-- Nuevo contenedor para el gráfico adicional -->
+            <div class="chart-container single-chart">
+                <h2>Tendencia de Comentarios Positivos</h2>
+                <canvas id="nuevoGrafico"></canvas>
+                <p>Este gráfico muestra la tendencia de los comentarios positivos a lo largo del tiempo, permitiendo a las empresas identificar periodos de mejora o deterioro en la percepción de sus clientes.</p>
+            </div>
+        </div>
+
+        <!-- Tercera fila con un solo gráfico -->
+        <div class="charts-row">
+            <div class="chart-container single-chart">
+                <h2>Usuarios Registrados por Rango de Edad</h2>
+                <canvas id="tercerGrafico"></canvas>
+                <p>Este gráfico muestra la cantidad de usuarios registrados clasificados por rangos de edad.</p>
+            </div>
+        </div>
+
+    </main>    
+    <script src="/frontend/js/empresa_analisis.js"></script>
+</body>
+</html>

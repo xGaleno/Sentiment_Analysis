@@ -1,0 +1,8 @@
+flask
+flask-cors
+tensorflow
+librosa
+speechrecognition
+requests
+python-dotenv
+google-cloud-firestore

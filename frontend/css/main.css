@@ -1,0 +1,112 @@
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: url('/frontend/Assets/Fondo_2.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.container {
+    text-align: center;
+}
+
+.logo img {
+    width: 150px;
+    margin-bottom: 20px;
+    transform: translateX(-20px);
+}
+
+.user-info-form {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 280px;
+    margin: 0 auto 20px;
+}
+
+.user-info-form .input-group {
+    margin-bottom: 15px;
+}
+
+.user-info-form .input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #6200EA;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.user-info-form .input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.user-info-form button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    background-color: #6200EA;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.user-info-form button:hover {
+    background-color: #7e3ff2;
+}
+
+.buttons button {
+    display: block;
+    width: 200px;
+    padding: 15px;
+    margin: 10px auto;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #6200EA;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.buttons button:hover {
+    background-color: #7e3ff2;
+}
+
+.buttons button:active {
+    transform: scale(0.98);
+}
+
+.empresa-button {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 200px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #6200EA;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.empresa-button:hover {
+    background-color: #7e3ff2;
+}
+
+.empresa-button:active {
+    transform: scale(0.98);
+}
