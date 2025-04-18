@@ -25,17 +25,15 @@ def get_all_users():
     users_ref = db.collection('users')
     return [doc.to_dict() for doc in users_ref.stream()]
 
-def add_comment(email, comment_text, sentiment):
-    user_doc = db.collection('users').document(email)
-    if not user_doc.get().exists:
-        return None
+def add_comment(usuario, pregunta, respuesta, sentimiento, polaridad):
     db.collection('comments').add({
-        'user_email': email,
-        'comment_text': comment_text,
-        'sentiment': sentiment,
+        'usuario': usuario,
+        'pregunta': pregunta,
+        'respuesta': respuesta,
+        'sentimiento': sentimiento,
+        'polaridad': polaridad,
         'timestamp': firestore.SERVER_TIMESTAMP
     })
-    return True
 
 def get_all_comments():
     comments_ref = db.collection('comments').order_by('timestamp')

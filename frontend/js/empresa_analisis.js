@@ -37,35 +37,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     function processCommentsData(comments) {
         const sentiments = { positive: 0, neutral: 0, negative: 0 };
         const averageSentimentData = {};
-
+    
         comments.forEach(comment => {
-            let sentiment = comment.sentiment.toLowerCase().trim();
-            sentiment = sentiment === 'positivo' ? 'positive' :
-                       sentiment === 'neutro' ? 'neutral' : 'negative';
+            const sentimientoRaw = comment.sentiment || comment.sentimiento;
+            const timestampRaw = comment.timestamp;
+    
+            if (!sentimientoRaw || !timestampRaw) {
+                console.warn("Comentario inválido:", comment);
+                return;
+            }
+    
+            const sentiment = sentimientoRaw.toLowerCase().trim() === 'positivo' ? 'positive' :
+                              sentimientoRaw.toLowerCase().trim() === 'neutro'   ? 'neutral'  :
+                              'negative';
+    
             const sentimentScore = sentiment === "positive" ? 1 : sentiment === "neutral" ? 0 : -1;
-
             sentiments[sentiment] = (sentiments[sentiment] || 0) + 1;
-
-            const date = new Date(comment.timestamp);
+    
+            const date = new Date(timestampRaw);
+            if (isNaN(date.getTime())) {
+                console.warn("Fecha inválida:", timestampRaw);
+                return;
+            }
+    
             const monthKey = `${date.getFullYear()}-${date.toLocaleString('default', { month: 'long' })}`;
-
+    
             if (!averageSentimentData[monthKey]) {
                 averageSentimentData[monthKey] = { totalScore: 0, count: 0, scores: [] };
             }
+    
             averageSentimentData[monthKey].totalScore += sentimentScore;
             averageSentimentData[monthKey].count += 1;
             averageSentimentData[monthKey].scores.push(sentimentScore);
         });
-
+    
         const averageSentimentByMonth = Object.keys(averageSentimentData).map(month => {
             const data = averageSentimentData[month];
             const average = data.totalScore / data.count;
             const variance = data.scores.reduce((acc, score) => acc + Math.pow(score - average, 2), 0) / data.count;
             return { date: month, averageSentiment: average, variance: variance };
         });
-
+    
         return { sentiments, averageSentimentByMonth };
     }
+    
 
     function renderChart(chart, element, type, labels, data, options) {
         if (chart) chart.destroy();
@@ -128,15 +143,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function filterByYears(years) {
-        const filteredComments = comments.filter(comment =>
-            years.includes(new Date(comment.timestamp).getFullYear())
-        );
+        let filteredComments = comments;
+    
+        // Si hay años seleccionados, filtramos
+        if (years.length > 0) {
+            filteredComments = comments.filter(comment =>
+                years.includes(new Date(comment.timestamp).getFullYear())
+            );
+        }
+    
         const { sentiments, averageSentimentByMonth } = processCommentsData(filteredComments);
         renderSentimentDistributionChart(sentiments);
         renderAverageSentimentChart(averageSentimentByMonth);
         renderVarianceSentimentChart(averageSentimentByMonth);
         renderPositiveTrendChart(averageSentimentByMonth);
-    }
+    }    
 
     function toggleYearFilter(year, buttonId) {
         const button = document.getElementById(buttonId);
@@ -150,8 +171,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         filterByYears(Array.from(selectedYears));
     }
 
-    document.getElementById('filter2023').addEventListener('click', () => toggleYearFilter(2023, 'filter2023'));
-    document.getElementById('filter2024').addEventListener('click', () => toggleYearFilter(2024, 'filter2024'));
+    [2023, 2024, 2025].forEach(year => {
+        const btnId = `filter${year}`;
+        document.getElementById(btnId).addEventListener('click', () => toggleYearFilter(year, btnId));
+    });
+    
 
     const commentsData = await fetchCommentsData();
     if (commentsData.length > 0) {

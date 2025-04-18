@@ -1,4 +1,5 @@
 from flask import request, jsonify
+from datetime import datetime
 from .db import (
     add_user,
     get_user_by_email,
@@ -35,30 +36,75 @@ def register_routes(app):
     def sentiment_analysis():
         data = request.json
         email = data.get('email')
-        text = data.get('text')
+        respuestas = data.get('respuestas')
 
-        if not text or not email:
-            return jsonify({"error": "Text and email are required"}), 400
+        if not email or not respuestas:
+            return jsonify({"error": "Email and respuestas are required"}), 400
 
         user = get_user_by_email(email)
         if not user.exists:
             return jsonify({"error": "User not found"}), 404
 
-        sentiment = analyze_sentiment(text)
-        if sentiment == "Error":
-            return jsonify({"error": "Sentiment analysis failed"}), 500
+        resultados = []
+        for item in respuestas:
+            pregunta = item.get("pregunta")
+            texto = item.get("respuesta")
 
-        success = add_comment(email, text, sentiment)
-        if not success:
-            return jsonify({"error": "Error saving comment"}), 500
+            if not texto or not pregunta:
+                continue
 
-        return jsonify({"sentiment": sentiment})
+            sentimiento = analyze_sentiment(texto)
+            if sentimiento == "Error":
+                continue
+
+            polaridad = 0.0
+            if sentimiento == "positivo":
+                polaridad = 0.5
+            elif sentimiento == "negativo":
+                polaridad = -0.5
+
+            add_comment(email, pregunta, texto, sentimiento, polaridad)
+
+            resultados.append({
+                "pregunta": pregunta,
+                "respuesta": texto,
+                "sentimiento": sentimiento,
+                "polaridad": polaridad
+            })
+
+        return jsonify(resultados)
 
     @app.route('/api/comments', methods=['GET'])
     def comments():
         try:
-            all_comments = get_all_comments()
-            return jsonify(all_comments)
+            all_comments_raw = get_all_comments()
+            formatted_comments = []
+
+            for comment in all_comments_raw:
+                # Paso 1: Filtrar si falta timestamp o sentimiento
+                if not comment.get("timestamp") or not comment.get("sentimiento"):
+                    print("Comentario omitido por estar incompleto:", comment)
+                    continue
+
+                timestamp = comment["timestamp"]
+                if isinstance(timestamp, datetime):
+                    timestamp_str = timestamp.isoformat()
+                elif hasattr(timestamp, "isoformat"):
+                    timestamp_str = timestamp.isoformat()
+                else:
+                    timestamp_str = str(timestamp)
+
+                formatted_comments.append({
+                    "usuario": comment.get("usuario"),
+                    "pregunta": comment.get("pregunta"),
+                    "respuesta": comment.get("respuesta"),
+                    "sentimiento": comment.get("sentimiento"),
+                    "polaridad": comment.get("polaridad"),
+                    "timestamp": timestamp_str
+                })
+
+            return jsonify(formatted_comments)
+
         except Exception as e:
             return jsonify({"error": f"Error getting comments: {str(e)}"}), 500
 

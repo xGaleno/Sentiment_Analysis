@@ -42,10 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!message) return;
 
             this.addMessage(message, false);
-            this.responses.push(message);
-            this.messageInput.value = '';
 
+            // Guardar la respuesta como un objeto con la pregunta correspondiente
+            const currentQuestion = this.questions[this.currentQuestionIndex];
+            this.responses.push({
+                pregunta: currentQuestion,
+                respuesta: message
+            });
+
+            this.messageInput.value = '';
             this.currentQuestionIndex++;
+
             if (this.currentQuestionIndex < this.questions.length) {
                 setTimeout(() => this.askQuestion(), 1000);
             } else {
@@ -80,14 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({
                         email: this.userEmail,
-                        text: this.responses.join(" ")
+                        respuestas: this.responses
                     })
                 });
 
                 if (!response.ok) throw new Error('Error en el análisis de sentimiento');
 
                 const result = await response.json();
-                console.log("Sentimiento registrado:", result.sentiment); // Solo log interno
+                console.log("Sentimiento registrado:", result.sentiment); // Log interno
             } catch (error) {
                 console.error('Error al analizar sentimiento:', error);
             }
