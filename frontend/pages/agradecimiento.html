@@ -1,0 +1,30 @@
+<!-- frontend/pages/agradecimiento.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gracias por tu comentario</title>
+    <link rel="stylesheet" href="../css/agradecimiento.css">
+    <script>
+        window.addEventListener('beforeunload', function () {
+            // Guardamos un marcador de recarga
+            sessionStorage.setItem('wasRefreshed', 'true');
+        });
+
+        window.addEventListener('load', function () {
+            if (sessionStorage.getItem('wasRefreshed') === 'true') {
+                sessionStorage.removeItem('wasRefreshed');
+                window.location.href = "main.html";  // Cambia esto si tu página principal tiene otra ruta
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="thank-you-container">
+        <div class="card">
+            <h1>🎉 ¡Gracias por tu comentario!</h1>
+            <p>Tu opinión nos ayuda a mejorar nuestros servicios.</p>
+        </div>
+    </div>
+</body>
+</html>

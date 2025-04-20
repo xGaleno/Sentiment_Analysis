@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, jsonify, render_template
 from datetime import datetime
 from .db import (
     add_user,
@@ -81,7 +81,6 @@ def register_routes(app):
             formatted_comments = []
 
             for comment in all_comments_raw:
-                # Paso 1: Filtrar si falta timestamp o sentimiento
                 if not comment.get("timestamp") or not comment.get("sentimiento"):
                     print("Comentario omitido por estar incompleto:", comment)
                     continue
@@ -123,3 +122,7 @@ def register_routes(app):
             return jsonify(all_users)
         except Exception as e:
             return jsonify({"error": f"Error getting users: {str(e)}"}), 500
+
+    @app.route('/agradecimiento')
+    def agradecimiento():
+        return render_template("agradecimiento.html")
