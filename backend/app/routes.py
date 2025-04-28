@@ -136,8 +136,16 @@ def register_routes(app):
         sender_email = "aliciamodas.diha@gmail.com"
         sender_password = "kdsczissnqdgbpwn"  # << SIN ESPACIOS, todo junto
 
-        subject = "Gracias por interactuar con nuestro chatbot"
-        body = "¡Hemos recibido tus respuestas! Gracias por confiar en Diha."
+        subject = "¡Gracias por tu confianza en Alicia Modas!"
+        body = (
+            "Hola,\n\n"
+            "Queremos agradecerte sinceramente por compartir tu opinión con Alicia Modas.\n"
+            "Tu participación es fundamental para ayudarnos a seguir creciendo y ofrecerte siempre lo mejor en moda y estilo.\n\n"
+            "Nuestro compromiso en Mendoza, Argentina, es brindarte experiencias únicas y productos de calidad.\n\n"
+            "¡Gracias por ser parte de nuestra comunidad!\n\n"
+            "Atentamente,\n"
+            "Equipo de Alicia Modas"
+        )
 
         msg = MIMEText(body, _charset='utf-8')
         msg['Subject'] = Header(subject, 'utf-8')

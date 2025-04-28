@@ -81,31 +81,28 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(`${API_BASE_URL}/sentiment_analysis`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         email: this.userEmail,
                         respuestas: this.responses
                     })
                 });
-
+        
                 if (!response.ok) {
                     throw new Error('Error en el análisis de sentimiento');
                 }
-
-                const result = await response.json();
-                console.log("Sentimiento registrado:", result);
-
-                // Enviar correo de confirmación al terminar
-                this.sendConfirmationEmail();
-
+        
+                console.log("Sentimiento registrado correctamente.");
+        
+                // Redirigir inmediatamente sin esperar correo
+                window.location.href = '/frontend/pages/agradecimiento.html';
+        
             } catch (error) {
                 console.error('Error al analizar sentimiento:', error);
                 alert('Ocurrió un error al procesar tus respuestas. Inténtalo más tarde.');
             }
         }
-
+        
         async sendConfirmationEmail() {
             try {
                 const response = await fetch(`${API_BASE_URL}/send_confirmation_email`, {

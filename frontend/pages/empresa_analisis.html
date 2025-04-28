@@ -14,7 +14,9 @@
         <a href="/frontend/pages/empresa_login.html" class="back-arrow">←</a>
         <img src="/frontend/Assets/robot.png" alt="Logo Diha" class="logo">
         <span class="diha-text">Diha</span>
+        <button id="logoutButton" class="logout-button">Cerrar Sesión</button>
     </header>
+
     <main>
         <div class="statistics-box">
             <h1>Statistics</h1>
@@ -24,7 +26,28 @@
                 <button id="filter2025">2025</button>
             </div>
         </div>
-        
+
+        <!-- NUEVO: Contenedor horizontal usuarios y historial -->
+        <section class="user-history-section">
+            <div class="users-list">
+                <h2>Usuarios</h2>
+                <table id="usersTable">
+                    <thead>
+                        <tr><th>Correo Electrónico</th></tr>
+                    </thead>
+                    <tbody>
+                        <!-- Usuarios cargados dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="chat-history">
+                <h2>Historial de Chat</h2>
+                <div id="chatHistoryContainer">
+                    <!-- Historial de preguntas y respuestas cargado dinámicamente -->
+                </div>
+            </div>
+        </section>
+
         <!-- Primera fila con dos gráficos -->
         <div class="charts-row">
             <div class="chart-container">
@@ -39,14 +62,13 @@
             </div>
         </div>
 
-       <!-- Segunda fila con dos gráficos -->
+        <!-- Segunda fila con dos gráficos -->
         <div class="charts-row">
             <div class="chart-container single-chart">
                 <h2>Distribución de Sentimientos</h2>
                 <canvas id="sentimentDistributionChart"></canvas>
                 <p>La "Distribución de Sentimientos" muestra el porcentaje de comentarios positivos, neutros y negativos.</p>
             </div>
-            <!-- Nuevo contenedor para el gráfico adicional -->
             <div class="chart-container single-chart">
                 <h2>Tendencia de Comentarios Positivos</h2>
                 <canvas id="nuevoGrafico"></canvas>
@@ -62,8 +84,8 @@
                 <p>Este gráfico muestra la cantidad de usuarios registrados clasificados por rangos de edad.</p>
             </div>
         </div>
-
     </main>    
+
     <script src="/frontend/js/empresa_analisis.js"></script>
 </body>
 </html>

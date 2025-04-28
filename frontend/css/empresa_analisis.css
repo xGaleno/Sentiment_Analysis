@@ -176,3 +176,121 @@ canvas {
     height: auto !important;
     max-height: 350px;
 }
+
+.logout-button {
+    margin-left: 1630px; /* Solo 20px de espacio respecto al texto Diha */
+    background-color: #6A0DAD; /* Morado fuerte */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #4B0082; /* Morado más oscuro al pasar el mouse */
+}
+
+/* === NUEVO: Tabla de usuarios y historial de chat === */
+
+.user-table-section, .chat-history-section {
+    width: 90%;
+    max-width: 1200px;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px auto; /* Centrado */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.user-table-section h2,
+.chat-history-section h2 {
+    color: #4B0082; /* Color púrpura para los títulos */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#usersTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#usersTable th, #usersTable td {
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+#usersTable tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+#usersTable th {
+    background-color: #6A0DAD; /* Morado */
+    color: white;
+}
+
+#chatHistoryContainer {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo interno de mensajes del historial */
+#chatHistoryContainer p {
+    margin: 8px 0;
+    color: #333;
+}
+
+.user-history-section {
+    display: flex;
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.users-list {
+    width: 30%;
+    padding: 20px;
+    border-right: 1px solid #ccc;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+.chat-history {
+    width: 70%;
+    padding: 20px;
+    overflow-y: auto;
+    max-height: 500px;
+}
+
+#usersTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#usersTable th, #usersTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#usersTable tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+#chatHistoryContainer p {
+    margin: 8px 0;
+}
+

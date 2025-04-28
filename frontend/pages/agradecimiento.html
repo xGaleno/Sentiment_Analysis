@@ -15,15 +15,28 @@
         </div>
     </div>
 
+    <!-- Nuevo Script para enviar correo automáticamente -->
     <script>
-        window.addEventListener('beforeunload', function () {
-            sessionStorage.setItem('wasRefreshed', 'true');
-        });
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+            const userEmail = localStorage.getItem('user_email');
 
-        window.addEventListener('load', function () {
-            if (sessionStorage.getItem('wasRefreshed') === 'true') {
-                sessionStorage.removeItem('wasRefreshed');
-                window.location.href = "main.html";
+            if (userEmail) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/send_confirmation_email`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: userEmail })
+                    });
+
+                    if (response.ok) {
+                        console.log('Correo de confirmación enviado correctamente');
+                    } else {
+                        console.error('Error enviando correo de confirmación');
+                    }
+                } catch (error) {
+                    console.error('Error enviando correo:', error);
+                }
             }
         });
     </script>
