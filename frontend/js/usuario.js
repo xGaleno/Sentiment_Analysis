@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             this.addMessage(message, false);
 
-            // Guardar la respuesta como un objeto con la pregunta correspondiente
             const currentQuestion = this.questions[this.currentQuestionIndex];
             this.responses.push({
                 pregunta: currentQuestion,
@@ -91,12 +90,48 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
-                if (!response.ok) throw new Error('Error en el análisis de sentimiento');
+                if (!response.ok) {
+                    throw new Error('Error en el análisis de sentimiento');
+                }
 
                 const result = await response.json();
-                console.log("Sentimiento registrado:", result.sentiment); // Log interno
+                console.log("Sentimiento registrado:", result);
+
+                // Enviar correo de confirmación al terminar
+                this.sendConfirmationEmail();
+
             } catch (error) {
                 console.error('Error al analizar sentimiento:', error);
+                alert('Ocurrió un error al procesar tus respuestas. Inténtalo más tarde.');
+            }
+        }
+
+        async sendConfirmationEmail() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/send_confirmation_email`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: this.userEmail
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error enviando correo');
+                }
+
+                console.log('Correo de confirmación enviado correctamente');
+
+            } catch (error) {
+                console.error('Error al enviar correo de confirmación:', error);
+                alert('No pudimos enviarte el correo de confirmación, pero tu participación fue registrada.');
+            } finally {
+                setTimeout(() => {
+                    window.location.href = '/frontend/pages/main.html';
+                }, 3000);
             }
         }
 
@@ -104,10 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.addMessage("¡Gracias por tus respuestas! Tu opinión es muy importante para nosotros.", true);
             this.messageInput.disabled = true;
             this.sendButton.disabled = true;
-
-            setTimeout(() => {
-                window.location.href = '/frontend/pages/main.html';
-            }, 2000);
         }
     }
 

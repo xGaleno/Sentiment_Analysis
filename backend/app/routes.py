@@ -9,6 +9,10 @@ from .db import (
     clear_comments
 )
 from .services.sentiment_analysis import analyze_sentiment
+from email.mime.text import MIMEText
+from email.header import Header
+import smtplib
+
 
 def register_routes(app):
 
@@ -126,3 +130,38 @@ def register_routes(app):
     @app.route('/agradecimiento')
     def agradecimiento():
         return render_template("agradecimiento.html")
+
+    # Nueva función para enviar correos
+    def send_email(recipient_email):
+        sender_email = "aliciamodas.diha@gmail.com"
+        sender_password = "kdsczissnqdgbpwn"  # << SIN ESPACIOS, todo junto
+
+        subject = "Gracias por interactuar con nuestro chatbot"
+        body = "¡Hemos recibido tus respuestas! Gracias por confiar en Diha."
+
+        msg = MIMEText(body, _charset='utf-8')
+        msg['Subject'] = Header(subject, 'utf-8')
+        msg['From'] = sender_email
+        msg['To'] = recipient_email
+
+        try:
+            with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, recipient_email, msg.as_string())
+        except Exception as e:
+            print(f"Error enviando email: {e}")
+            raise e
+
+    @app.route('/api/send_confirmation_email', methods=['POST'])
+    def send_confirmation_email():
+        data = request.json
+        email = data.get('email')
+
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+
+        try:
+            send_email(email)
+            return jsonify({"message": "Confirmation email sent successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": f"Error sending email: {str(e)}"}), 500

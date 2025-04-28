@@ -1,6 +1,7 @@
 import os
 from google.cloud import firestore
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()  # Carga las variables de entorno del archivo .env
 
@@ -14,7 +15,8 @@ def add_user(name, age, email):
     doc_ref.set({
         'name': name,
         'age': age,
-        'email': email
+        'email': email,
+        'registration_date': datetime.utcnow()
     })
 
 def get_user_by_email(email):
