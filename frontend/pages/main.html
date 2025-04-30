@@ -35,7 +35,13 @@
             const age = document.getElementById('age').value;
             const email = document.getElementById('email').value;
 
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/.test(name)) {
+                alert("El nombre solo debe contener letras.");
+                return;
+            }
+
             if (name && age && email) {
+
                 // Guardar información en localStorage
                 localStorage.setItem('user_name', name);
                 localStorage.setItem('user_age', age);

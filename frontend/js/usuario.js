@@ -1,5 +1,31 @@
+
 document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+
+    function isValidEmail(email) {
+        return /^[^@\s]+@(gmail\.com|outlook\.com|hotmail\.com|upc\.edu\.pe)$/.test(email);
+    }    
+
+    async function validarUsuario(email) {
+        if (!isValidEmail(email)) {
+            alert("El formato del correo no es válido.");
+            return false;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/check_user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            alert(data.error || 'El correo no está registrado. Por favor, ingresa uno válido.');
+            return false;
+        }
+
+        return true;
+    }
 
     class ChatInterface {
         constructor() {
@@ -18,8 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
             this.initialize();
         }
 
-        initialize() {
-            if (!this.userEmail) {
+        async initialize() {
+            if (!this.userEmail || !(await validarUsuario(this.userEmail))) {
+                localStorage.removeItem('user_email');
                 window.location.href = '/frontend/pages/main.html';
                 return;
             }
@@ -87,48 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         respuestas: this.responses
                     })
                 });
-        
+
                 if (!response.ok) {
                     throw new Error('Error en el análisis de sentimiento');
                 }
-        
+
                 console.log("Sentimiento registrado correctamente.");
-        
-                // Redirigir inmediatamente sin esperar correo
                 window.location.href = '/frontend/pages/agradecimiento.html';
-        
             } catch (error) {
                 console.error('Error al analizar sentimiento:', error);
                 alert('Ocurrió un error al procesar tus respuestas. Inténtalo más tarde.');
-            }
-        }
-        
-        async sendConfirmationEmail() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/send_confirmation_email`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: this.userEmail
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Error enviando correo');
-                }
-
-                console.log('Correo de confirmación enviado correctamente');
-
-            } catch (error) {
-                console.error('Error al enviar correo de confirmación:', error);
-                alert('No pudimos enviarte el correo de confirmación, pero tu participación fue registrada.');
-            } finally {
-                setTimeout(() => {
-                    window.location.href = '/frontend/pages/main.html';
-                }, 3000);
             }
         }
 
