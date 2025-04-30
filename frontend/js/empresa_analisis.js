@@ -13,6 +13,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     let sentimentDistributionChart, averageSentimentChart, varianceSentimentChart, nuevoGrafico, tercerGrafico;
     let selectedYears = new Set();
 
+    document.querySelectorAll('.year-filter button.selected').forEach(btn => {
+        selectedYears.add(btn.id);
+    });
+
     async function fetchCommentsData() {
         try {
             const response = await fetch(`${API_BASE_URL}/comments`);
