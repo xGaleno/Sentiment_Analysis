@@ -10,20 +10,29 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
+
     <header class="header">
         <a href="/frontend/pages/empresa_login.html" class="back-arrow">←</a>
         <img src="/frontend/Assets/robot.png" alt="Logo Diha" class="logo">
         <span class="diha-text">Diha</span>
-        <button id="logoutButton" class="logout-button">Cerrar Sesión</button>
+    
+        <div class="button-group">
+            <button id="refreshButton" class="logout-button">Actualizar Datos</button>
+            <button id="exportCSVButton" class="logout-button">Exportar CSV</button>
+            <button id="generatePDFButton" class="logout-button">Generar Reporte PDF</button>
+            <button id="logoutButton" class="logout-button">Cerrar Sesión</button>
+        </div>
+        
     </header>
-
+    
     <main>
         <div class="statistics-box">
             <h1>Statistics</h1>
+            <!-- Botones de filtro por año -->
             <div class="year-filter">
-                <button id="filter2023">2023</button>
-                <button id="filter2024">2024</button>
-                <button id="filter2025">2025</button>
+                <button id="2023" class="selected">2023</button>
+                <button id="2024" class="selected">2024</button>
+                <button id="2025" class="selected">2025</button>
             </div>
         </div>
 

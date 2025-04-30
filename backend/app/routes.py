@@ -12,6 +12,9 @@ from .services.sentiment_analysis import analyze_sentiment
 from email.mime.text import MIMEText
 from email.header import Header
 import smtplib
+from flask import send_file
+from app.services.generate_report import generate_comments_report
+
 
 
 def register_routes(app):
@@ -173,3 +176,13 @@ def register_routes(app):
             return jsonify({"message": "Confirmation email sent successfully"}), 200
         except Exception as e:
             return jsonify({"error": f"Error sending email: {str(e)}"}), 500
+
+    @app.route('/api/generate_comments_report', methods=['GET'])
+    def generate_comments_report_route():
+        try:
+            comments = get_all_comments()
+            pdf_buffer = generate_comments_report(comments)
+            return send_file(pdf_buffer, as_attachment=True, download_name="informe_comentarios.pdf", mimetype='application/pdf')
+        except Exception as e:
+            print("Error generando reporte:", e)
+            return jsonify({"error": "No se pudo generar el informe"}), 500

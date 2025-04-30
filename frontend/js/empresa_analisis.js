@@ -227,4 +227,116 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = '/frontend/pages/empresa_login.html';
         });
     }
+
+    
+    // === GESTIÓN DE BOTONES DE AÑO ===
+    const yearButtons = ['2023', '2024', '2025'].map(y => document.getElementById(y));
+    yearButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const year = button.id;
+            if (selectedYears.has(year)) {
+                selectedYears.delete(year);
+                button.classList.remove('selected');
+            } else {
+                selectedYears.add(year);
+                button.classList.add('selected');
+            }
+            actualizarGraficosPorAño();
+        });
+    });
+
+    function actualizarGraficosPorAño() {
+        const filtrados = allCommentsData.filter(c => {
+            const fecha = new Date(c.timestamp);
+            return !isNaN(fecha.getTime()) && selectedYears.has(fecha.getFullYear().toString());
+        });
+
+        const procesado = processCommentsData(filtrados);
+        renderSentimentDistributionChart(procesado.sentiments);
+        renderAverageSentimentChart(procesado.averageSentimentByMonth);
+        renderVarianceSentimentChart(procesado.averageSentimentByMonth);
+        renderPositiveTrendChart(procesado.averageSentimentByMonth);
+    }
+
+
+    // === Botón Actualizar Datos ===
+    const refreshButton = document.getElementById('refreshButton');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', () => {
+            location.reload();  // Recarga toda la página
+        });
+    }
+
+    const exportCSVButton = document.getElementById('exportCSVButton');
+    if (exportCSVButton) {
+        exportCSVButton.addEventListener('click', async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/comments');
+                if (!response.ok) throw new Error('Error al obtener comentarios');
+                
+                const comentarios = await response.json();
+                
+                // Encabezado del CSV
+                let csvRows = [
+                    ["Comentario", "Fecha", "Correo", "Edad"]
+                ];
+    
+                comentarios.forEach(row => {
+                    csvRows.push([
+                        (row.respuesta || '').replace(/"/g, '""'),  // Escapa comillas internas
+                        row.timestamp || '',
+                        row.usuario || '',
+                        row.edad || 'Desconocida'
+                    ]);
+                });
+
+
+    const generatePDFButton = document.getElementById('generatePDFButton');
+    if (generatePDFButton) {
+        generatePDFButton.addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/generate_report`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ comentarios: allCommentsData })
+                });
+                if (!response.ok) throw new Error('No se pudo generar el reporte PDF');
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'reporte_comentarios.pdf';
+                link.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error al generar el PDF:', error);
+                alert('Hubo un problema al generar el PDF.');
+            }
+        });
+    }
+
+    
+                // Formato CSV listo
+                const csvContent = csvRows.map(e => e.map(item => `"${item}"`).join(",")).join("\n");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+    
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", "comentarios_ordenados.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error exportando comentarios:', error);
+                alert('No se pudo exportar los comentarios.');
+            }
+        });
+    }
+
+    
+
 });

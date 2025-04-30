@@ -5,3 +5,6 @@ speechrecognition
 requests
 python-dotenv
 google-cloud-firestore
+reportlab
+transformers
+torch

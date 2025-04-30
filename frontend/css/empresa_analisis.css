@@ -178,7 +178,6 @@ canvas {
 }
 
 .logout-button {
-    margin-left: 1630px; /* Solo 20px de espacio respecto al texto Diha */
     background-color: #6A0DAD; /* Morado fuerte */
     color: white;
     border: none;
@@ -188,6 +187,7 @@ canvas {
     font-size: 14px;
     transition: background-color 0.3s ease;
 }
+
 
 .logout-button:hover {
     background-color: #4B0082; /* Morado más oscuro al pasar el mouse */
@@ -293,4 +293,14 @@ canvas {
 #chatHistoryContainer p {
     margin: 8px 0;
 }
+
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    margin-right: 50px; /* 👈 Nuevo margen para mover a la izquierda */
+}
+
+
 
