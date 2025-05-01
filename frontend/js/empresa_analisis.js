@@ -19,8 +19,7 @@ import {
 import {
     renderUsersTable,
     renderChatHistory,
-    initAgeFilter,
-    initSentimentFilter
+    initAgeFilter
 } from './user_interface.js';
 
 // ====================================================================
@@ -42,9 +41,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let allCommentsData = [];
     let selectedYears = new Set(['2023', '2024', '2025']);
     let charts = {};
-
-    let currentEmail = null;
-    let activeSentiment = null;
 
     // ====================================================================
     // 📊 RENDERIZAR GRÁFICOS CON DATOS PROCESADOS
@@ -70,28 +66,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     charts.users = renderUserStatsChart(users, ctx.users, charts.users);
 
-    // Función para renderizar historial con filtro de sentimiento activo
-    function renderWithFilters(email) {
-        currentEmail = email;
-        renderChatHistory(allCommentsData, email, activeSentiment);
-    }
-    
-    // Tabla de usuarios
-    renderUsersTable(users, renderWithFilters);
-    
-    // Filtro por edad
+    renderUsersTable(users, email => renderChatHistory(allCommentsData, email));
+
     initAgeFilter(filteredUsers => {
-        renderUsersTable(filteredUsers, renderWithFilters);
+        renderUsersTable(filteredUsers, email => renderChatHistory(allCommentsData, email));
     });
-    
-    // Filtro por sentimiento
-    initSentimentFilter(allCommentsData, (comments, email, sentiment) => {
-        activeSentiment = sentiment;
-        if (currentEmail) {
-            renderChatHistory(comments, currentEmail, sentiment);
-        }
-    });
-    
+
     // ====================================================================
     // 🔐 CERRAR SESIÓN
     // ====================================================================
@@ -172,5 +152,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         link.click();
         URL.revokeObjectURL(url);
     });
-    
+
 });

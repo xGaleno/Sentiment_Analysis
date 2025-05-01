@@ -1,5 +1,5 @@
 from flask import request, jsonify, render_template, send_file
-from datetime import datetime
+from datetime import datetime, timezone
 from .db import (
     add_user, get_user_by_email, get_all_users,
     add_comment, get_all_comments, clear_comments
@@ -46,6 +46,17 @@ def register_routes(app):
 
         if not get_user_by_email(email).exists:
             return jsonify({"error": "User not found"}), 404
+
+        # 🔒 Validación: ¿El usuario ya envió hoy?
+        from datetime import datetime, timezone
+        today = datetime.now(timezone.utc).date()
+
+        user_comments = get_all_comments()
+        for c in user_comments:
+            if c.get("usuario") == email:
+                ts = c.get("timestamp")
+                if ts and hasattr(ts, 'date') and ts.date() == today:
+                    return jsonify({"error": "Solo se permite una opinión por día."}), 429
 
         resultados = []
         for item in respuestas:
