@@ -158,29 +158,32 @@ canvas {
 }
 
 /* === USERS AND CHAT HISTORY === */
-.user-history-section {
+.historial-layout {
     display: flex;
+    gap: 20px;
     width: 90%;
     max-width: 1200px;
-    margin: 20px auto;
+    margin: 30px auto;
+    align-items: flex-start;
+}
+
+.users-panel, .chat-panel {
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    overflow: hidden;
-}
-
-.users-list, .chat-history {
     padding: 20px;
-    overflow-y: auto;
+    box-sizing: border-box;
     max-height: 500px;
+    overflow-y: auto;
 }
 
-.users-list {
+.users-panel {
     width: 30%;
+    min-width: 220px;
     border-right: 1px solid #ccc;
 }
 
-.chat-history {
+.chat-panel {
     width: 70%;
 }
 
@@ -211,6 +214,8 @@ canvas {
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    max-height: 400px;
 }
 
 #chatHistoryContainer p {

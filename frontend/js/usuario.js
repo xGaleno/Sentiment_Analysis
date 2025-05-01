@@ -83,7 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => this.askQuestion(), 1000);
             } else {
                 this.finishChat();
-                this.analyzeSentiment();
+                this.addMessage("Guardando tus respuestas...");
+                setTimeout(() => this.analyzeSentiment(), 500);                
             }
         }
 

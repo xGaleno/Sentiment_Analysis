@@ -27,7 +27,7 @@ export function renderUsersTable(users, onRowClick) {
  * @param {string} userEmail - Email del usuario seleccionado
  */
 export function renderChatHistory(comments, userEmail) {
-    const section = document.querySelector('.chat-history-section');
+    const section = document.querySelector('.chat-panel');
     const container = document.getElementById('chatHistoryContainer');
     container.innerHTML = '';
 

@@ -8,6 +8,8 @@ from .services.sentiment_analysis import analyze_sentiment
 from app.services.generate_report import generate_comments_report
 
 import smtplib
+import threading
+
 from email.mime.text import MIMEText
 from email.header import Header
 
@@ -65,6 +67,11 @@ def register_routes(app):
                 "sentimiento": sentimiento,
                 "polaridad": polaridad
             })
+
+        try:
+            threading.Thread(target=send_email, args=(email,)).start()
+        except Exception as e:
+            print("Error al lanzar hilo de correo:", e)
 
         return jsonify(resultados)
 

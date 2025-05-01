@@ -36,8 +36,8 @@ class ApiService {
     // ============================================
     static async loginEmpresa(credentials) {
         const validCredentials = {
-            username: "admin",
-            password: "admin123"
+            username: "Diha",
+            password: "Alicia_Modas_Diha"
         };
 
         return new Promise((resolve, reject) => {
