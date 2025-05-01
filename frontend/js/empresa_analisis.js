@@ -153,4 +153,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         URL.revokeObjectURL(url);
     });
 
+    // ====================================================================
+    // ⏱️ AUTO-REFRESH CADA 10 SEGUNDOS
+    // ====================================================================
+    setInterval(async () => {
+        console.log("⏱️ Auto-refresh ejecutado");
+    
+        const comments = await fetchComments(API_BASE_URL);
+        allCommentsData = comments;
+    
+        const processed = processCommentsData(allCommentsData);
+        updateCharts(processed);
+    }, 10000);    
+
 });
