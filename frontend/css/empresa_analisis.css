@@ -222,3 +222,86 @@ canvas {
     margin: 8px 0;
     color: #333;
 }
+
+/* === AGE === */
+
+.age-filter-box {
+    width: 90%;
+    max-width: 1100px;
+    margin: 20px auto 10px;
+    background-color: #4B0082;
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.age-filter-box h2 {
+    margin-bottom: 10px;
+}
+
+.age-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.age-filter-button {
+    padding: 6px 14px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #999999; /* gris desactivado */
+    color: #fff;               /* texto blanco */
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.age-filter-button.selected {
+    background-color: #ffffff; /* fondo blanco */
+    color: #4B0082;            /* texto morado */
+    font-weight: bold;
+}
+
+/* === SENTIMENT === */
+
+.sentiment-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.sentiment-filter-button {
+    padding: 6px 14px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    background-color: #999999;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sentiment-filter-button.selected {
+    background-color: #ffffff;
+    color: #4B0082;
+    font-weight: bold;
+}
+
+.filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.age-filter-buttons,
+.sentiment-filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 0;
+}

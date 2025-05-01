@@ -18,9 +18,10 @@ import {
 
 import {
     renderUsersTable,
-    renderChatHistory
+    renderChatHistory,
+    initAgeFilter,
+    initSentimentFilter
 } from './user_interface.js';
-
 
 // ====================================================================
 // 🚀 MAIN — Espera a que el DOM esté listo
@@ -41,6 +42,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let allCommentsData = [];
     let selectedYears = new Set(['2023', '2024', '2025']);
     let charts = {};
+
+    let currentEmail = null;
+    let activeSentiment = null;
 
     // ====================================================================
     // 📊 RENDERIZAR GRÁFICOS CON DATOS PROCESADOS
@@ -65,8 +69,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     charts.users = renderUserStatsChart(users, ctx.users, charts.users);
-    renderUsersTable(users, email => renderChatHistory(allCommentsData, email));
 
+    // Función para renderizar historial con filtro de sentimiento activo
+    function renderWithFilters(email) {
+        currentEmail = email;
+        renderChatHistory(allCommentsData, email, activeSentiment);
+    }
+    
+    // Tabla de usuarios
+    renderUsersTable(users, renderWithFilters);
+    
+    // Filtro por edad
+    initAgeFilter(filteredUsers => {
+        renderUsersTable(filteredUsers, renderWithFilters);
+    });
+    
+    // Filtro por sentimiento
+    initSentimentFilter(allCommentsData, (comments, email, sentiment) => {
+        activeSentiment = sentiment;
+        if (currentEmail) {
+            renderChatHistory(comments, currentEmail, sentiment);
+        }
+    });
+    
     // ====================================================================
     // 🔐 CERRAR SESIÓN
     // ====================================================================
@@ -147,4 +172,5 @@ document.addEventListener('DOMContentLoaded', async () => {
         link.click();
         URL.revokeObjectURL(url);
     });
+    
 });
