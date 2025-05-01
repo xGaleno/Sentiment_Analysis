@@ -177,15 +177,23 @@ def register_routes(app):
         except Exception as e:
             return jsonify({"error": f"Error sending email: {str(e)}"}), 500
 
-    @app.route('/api/generate_comments_report', methods=['GET'])
-    def generate_comments_report_route():
-        try:
-            comments = get_all_comments()
-            pdf_buffer = generate_comments_report(comments)
-            return send_file(pdf_buffer, as_attachment=True, download_name="informe_comentarios.pdf", mimetype='application/pdf')
-        except Exception as e:
-            print("Error generando reporte:", e)
-            return jsonify({"error": "No se pudo generar el informe"}), 500
+    @app.route('/api/generate_report', methods=['POST', 'OPTIONS'])
+    def generate_report():
+        if request.method == 'OPTIONS':
+            return '', 200
+
+        data = request.get_json()
+        comentarios = data.get("comentarios", [])
+        if not comentarios:
+            return jsonify({"error": "No se enviaron comentarios"}), 400
+
+        buffer = generate_comments_report(comentarios)
+        return send_file(
+            buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='reporte_comentarios.pdf'
+        )
         
     @app.route('/api/check_user', methods=['POST'])
     def check_user():

@@ -4,6 +4,6 @@ from .routes import register_routes
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+    CORS(app, supports_credentials=True)
     register_routes(app)
     return app
