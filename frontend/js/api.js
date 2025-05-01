@@ -1,7 +1,19 @@
-// Configuración dinámica de la URL base de la API
-const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api'; 
+// ============================================
+// 🔧 CONFIGURACIÓN GLOBAL DE API
+// ============================================
+
+const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+
+
+// ============================================
+// 📦 CLASE ApiService
+// ============================================
 
 class ApiService {
+
+    // ============================================
+    // 🔐 AUTENTICACIÓN: Login de usuario general
+    // ============================================
     static async login(credentials) {
         try {
             const response = await fetch(`${API_BASE_URL}/login`, {
@@ -18,30 +30,16 @@ class ApiService {
         }
     }
 
-    static async sendMessage(message) {
-        try {
-            const response = await fetch(`${API_BASE_URL}/messages`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({ message })
-            });
-            return await response.json();
-        } catch (error) {
-            console.error('Message sending error:', error);
-            throw error;
-        }
-    }
 
+    // ============================================
+    // 🔐 AUTENTICACIÓN: Login de empresa (Simulado)
+    // ============================================
     static async loginEmpresa(credentials) {
-        // Simulación de login exitoso
         const validCredentials = {
             username: "admin",
             password: "admin123"
         };
-    
+
         return new Promise((resolve, reject) => {
             setTimeout(() => {
                 if (
@@ -60,6 +58,31 @@ class ApiService {
         });
     }
 
+
+    // ============================================
+    // ✉️ ENVÍO DE MENSAJES
+    // ============================================
+    static async sendMessage(message) {
+        try {
+            const response = await fetch(`${API_BASE_URL}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ message })
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Message sending error:', error);
+            throw error;
+        }
+    }
+
+
+    // ============================================
+    // 📊 CONSULTA DE ESTADÍSTICAS DE EMPRESA
+    // ============================================
     static async getEmpresaStats() {
         try {
             const token = localStorage.getItem('token');

@@ -4,18 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gracias por tu comentario</title>
+
+    <!-- Estilos -->
     <link rel="stylesheet" href="../css/agradecimiento.css">
 </head>
 <body>
-    <div class="thank-you-container">
+
+    <main class="thank-you-container">
         <div class="card">
             <h1>🎉 ¡Gracias por tu comentario!</h1>
             <p>Tu opinión nos ayuda a mejorar nuestros servicios.</p>
             <a href="main.html" class="btn-volver">Volver al inicio</a>
         </div>
-    </div>
+    </main>
 
-    <!-- Nuevo Script para enviar correo automáticamente -->
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
@@ -40,5 +42,6 @@
             }
         });
     </script>
+
 </body>
 </html>

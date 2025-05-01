@@ -1,62 +1,66 @@
+/* === ESTILOS GLOBALES === */
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #e1bee7, #f3e5f5); /* fondo morado claro */
     height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #e1bee7, #f3e5f5);
     transition: all 0.3s ease-in-out;
 }
 
+/* === CONTENEDOR PRINCIPAL === */
 .thank-you-container {
-    padding: 50px 40px;
-    background: #ffffff;
-    box-shadow: 0 20px 40px rgba(123, 31, 162, 0.15); /* sombra con tono morado */
-    border-radius: 25px;
     width: 100%;
     max-width: 420px;
+    padding: 50px 40px;
+    background: #fff;
+    border-radius: 25px;
+    border: 2px solid #ce93d8;
+    box-shadow: 0 20px 40px rgba(123, 31, 162, 0.15);
     text-align: center;
     animation: fadeInUp 0.8s ease-out;
-    border: 2px solid #ce93d8; /* borde lavanda */
 }
 
+/* === TEXTO === */
 .card h1 {
     font-size: 2.2rem;
-    color: #6a1b9a; /* morado profundo */
     margin-bottom: 15px;
     font-weight: 700;
+    color: #6a1b9a;
 }
 
 .card p {
     font-size: 1.15rem;
-    color: #5e35b1; /* morado medio */
-    margin-bottom: 35px;
     line-height: 1.6;
+    margin-bottom: 35px;
+    color: #5e35b1;
 }
 
+/* === BOTÓN VOLVER === */
 .btn-volver {
     display: inline-block;
     padding: 12px 25px;
-    background-color: #8e24aa; /* botón morado fuerte */
-    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #8e24aa;
     border: none;
     border-radius: 30px;
     text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: 0 5px 15px rgba(142, 36, 170, 0.3);
 }
 
 .btn-volver:hover {
-    background-color: #6a1b9a; /* tono más oscuro al pasar el mouse */
+    background-color: #6a1b9a;
     box-shadow: 0 8px 20px rgba(106, 27, 154, 0.3);
     transform: translateY(-2px);
 }
 
-/* Animación de entrada */
+/* === ANIMACIÓN DE ENTRADA === */
 @keyframes fadeInUp {
     from {
         opacity: 0;

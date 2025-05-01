@@ -1,52 +1,76 @@
-document.addEventListener('DOMContentLoaded', function() {
+// ======================================================================
+// 🔐 empresa_login.js — Lógica de autenticación para login de empresa
+// ======================================================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 🔍 Elementos del DOM
     const loginForm = document.querySelector('.login-form');
     const loginButton = document.querySelector('.login-button');
-    
-    // Crear div para mensajes de error/éxito
+
+    // 📢 Mensaje dinámico de estado (éxito o error)
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message';
     loginForm.appendChild(messageDiv);
 
-    loginForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        
-        // Mostrar estado de carga
-        loginButton.disabled = true;
-        loginButton.innerHTML = 'Iniciando sesión...';
+    // ======================================================================
+    // 🚀 SUBMIT DEL FORMULARIO DE LOGIN
+    // ======================================================================
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // ⏳ Mostrar estado de carga
+        setButtonState(true, 'Iniciando sesión...');
         messageDiv.textContent = '';
-        
+
         const username = document.querySelector('input[type="text"]').value;
         const password = document.querySelector('input[type="password"]').value;
-        
+
         try {
-            const response = await ApiService.loginEmpresa({ username, password });
-            
-            if (response.token) {
-                // Guardar datos de la sesión
-                localStorage.setItem('token', response.token);
-                localStorage.setItem('empresa_id', response.empresa_id);
-                localStorage.setItem('empresa_name', response.empresa_name);
-                
-                // Mostrar mensaje de éxito
+            // 🧠 Llamada al servicio de login simulado
+            const res = await ApiService.loginEmpresa({ username, password });
+
+            // ✅ Login exitoso
+            if (res.token) {
+                localStorage.setItem('token', res.token);
+                localStorage.setItem('empresa_id', res.empresa_id);
+                localStorage.setItem('empresa_name', res.empresa_name);
+
                 messageDiv.textContent = 'Login exitoso, redirigiendo...';
                 messageDiv.style.color = 'green';
-                
-                // Redireccionar después de un breve delay
+
                 setTimeout(() => {
                     window.location.href = "/frontend/pages/empresa_analisis.html";
                 }, 1000);
             } else {
-                showError("Error en la autenticación");
+                handleError("Error en la autenticación");
             }
-        } catch (error) {
-            showError(error.message || "Login failed. Please try again.");
+        } catch (err) {
+            // ❌ Fallo en login
+            handleError(err.message || "Login failed. Please try again.");
         }
     });
 
-    function showError(message) {
-        loginButton.disabled = false;
-        loginButton.innerHTML = 'Login';
+    // ======================================================================
+    // ⚠️ FUNCIONES AUXILIARES
+    // ======================================================================
+
+    /**
+     * Muestra mensaje de error y reinicia botón
+     * @param {string} message
+     */
+    function handleError(message) {
+        setButtonState(false, 'Login');
         messageDiv.textContent = message;
         messageDiv.style.color = 'red';
+    }
+
+    /**
+     * Cambia el estado del botón de login
+     * @param {boolean} disabled
+     * @param {string} text
+     */
+    function setButtonState(disabled, text) {
+        loginButton.disabled = disabled;
+        loginButton.innerHTML = text;
     }
 });

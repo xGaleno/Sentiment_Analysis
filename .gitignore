@@ -1,35 +1,34 @@
-# Claves y archivos sensibles
+# === 1. Archivos de entorno y claves sensibles ===
 .env
 backend/.env
 backend/keys/firebase-credentials.json
 
-# Bases de datos locales
+# === 2. Bases de datos locales ===
 *.db
 *.sqlite3
 
-# Entornos virtuales de Python
+# === 3. Entornos virtuales de Python ===
 .venv/
 venv/
 env/
 backend/env/
 
-# Caché y compilados de Python
+# === 4. Cachés y archivos compilados de Python ===
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
 *.pyd
 
-# Archivos de configuración del editor
+# === 5. Configuraciones de editores y herramientas ===
 .vscode/
 
-# Archivos binarios, logs y temporales
+# === 6. Archivos binarios, logs, backups y temporales ===
+*.log
 *.dll
 *.exe
-*.log
 *.zip
 *.tar.gz
 *.rar
 
-# Archivos del sistema (macOS / Windows)
+# === 7. Archivos de sistema (macOS / Windows) ===
 .DS_Store
 Thumbs.db

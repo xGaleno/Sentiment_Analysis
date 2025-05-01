@@ -1,144 +1,122 @@
-/* Estilos globales y header */
+/* === GLOBAL === */
 body {
-    margin: 0; /* Elimina el margen del cuerpo */
-    font-family: Arial, sans-serif; /* Define la fuente principal */
-    background-color: #f4f4f4; /* Color de fondo gris claro */
-    display: flex; /* Permite organizar el contenido del body en columna */
-    flex-direction: column; /* Dispone los elementos en columna */
-    min-height: 100vh; /* Garantiza que el body ocupe toda la altura de la ventana */
-    overflow-x: hidden; /* Oculta el desbordamiento horizontal */
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
+/* === HEADER === */
 .header {
-    width: 100%; /* La cabecera ocupa todo el ancho */
-    background-color: #ffffff; /* Fondo blanco para la cabecera */
-    display: flex; /* Usa flexbox para organizar los elementos dentro de la cabecera */
-    align-items: center; /* Alinea verticalmente al centro */
-    padding: 15px 20px; /* Espaciado interno en los ejes vertical y horizontal */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera en la cabecera */
+    width: 100%;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .back-arrow {
-    text-decoration: none; /* Quita el subrayado de los enlaces */
-    font-size: 24px; /* Tamaño de fuente para el icono de flecha */
-    margin-right: 15px; /* Espaciado a la derecha de la flecha */
-    color: #333; /* Color gris oscuro para la flecha */
+    text-decoration: none;
+    font-size: 24px;
+    margin-right: 15px;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.back-arrow:hover {
+    color: #6200EA;
 }
 
 .logo {
-    width: 30px; /* Ancho fijo para el logo */
-    height: auto; /* Altura automática para mantener la proporción */
-    margin-right: 10px; /* Espaciado a la derecha del logo */
+    width: 30px;
+    height: auto;
+    margin-right: 10px;
 }
 
 .diha-text {
-    font-size: 20px; /* Tamaño de fuente para el texto de la marca */
-    font-weight: bold; /* Estilo de fuente en negrita */
-    color: #4B0082; /* Color púrpura para el texto */
+    font-size: 20px;
+    font-weight: bold;
+    color: #4B0082;
 }
 
-/* Contenedor de estadísticas y filtro */
+.button-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    margin-right: 50px;
+}
+
+.logout-button {
+    background-color: #6A0DAD;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #4B0082;
+}
+
+/* === STATISTICS BOX === */
 .statistics-box {
-    width: 90%; /* Ocupa el 90% del ancho del contenedor */
-    max-width: 1200px; /* Ancho máximo para pantallas grandes */
-    background-color: #ffffff; /* Fondo blanco */
-    padding: 0.5px; /* Espacio mínimo interno */
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera */
-    text-align: left; /* Alineación del texto a la izquierda */
-    margin: 20px auto; /* Margen superior e inferior, centrado horizontalmente */
-    display: flex; /* Flexbox para organizar el contenido */
-    justify-content: space-between; /* Distribuye el espacio entre elementos */
-    align-items: center; /* Alinea verticalmente al centro */
+    width: 90%;
+    max-width: 1200px;
+    background-color: #ffffff;
+    padding: 0.5px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .statistics-box h1 {
-    margin-left: 15px; /* Espaciado a la izquierda del título */
+    margin-left: 15px;
 }
 
 .year-filter {
-    display: flex; /* Flexbox para organizar botones de filtro */
-    gap: 10px; /* Espaciado entre los botones */
-    margin-right: 10px; /* Espaciado a la derecha */
+    display: flex;
+    gap: 10px;
+    margin-right: 10px;
 }
 
 .year-filter button {
-    padding: 8px 12px; /* Espaciado interno en ejes vertical y horizontal */
-    border: none; /* Elimina el borde predeterminado */
-    background-color: #A9A9A9; /* Color gris para el fondo del botón */
-    color: white; /* Color de texto blanco */
-    cursor: pointer; /* Cambia el cursor al pasar el mouse */
-    border-radius: 5px; /* Bordes redondeados */
-    transition: background-color 0.3s ease; /* Efecto de transición para el fondo */
+    padding: 8px 12px;
+    border: none;
+    background-color: #A9A9A9;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
 }
 
 .year-filter button:hover {
-    background-color: #8F8F8F; /* Cambia el fondo al pasar el mouse */
+    background-color: #8F8F8F;
 }
 
 .year-filter button.selected {
-    background-color: #6A0DAD; /* Fondo púrpura para el botón seleccionado */
-    color: white; /* Color de texto blanco */
+    background-color: #6A0DAD;
 }
 
-/* Contenedor para filas de gráficos */
+/* === CHARTS === */
 .charts-row {
-    display: flex; /* Flexbox para organizar en fila */
-    flex-direction: row; /* Ordena los elementos en fila */
-    justify-content: space-around; /* Espacia los gráficos de forma uniforme */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
     width: 80%;
     max-width: 1200px;
-    margin: 20px auto; /* Centrado y espaciado vertical */
+    margin: 20px auto;
     gap: 20px;
-}
-
-/* Estilo especial para el gráfico en la segunda fila */
-.single-chart {
-    max-width: 60%; /* Reducir el ancho máximo para evitar distorsión */
-    margin: 0 auto; /* Centrar el gráfico */
-}
-
-.chart-container canvas {
-    width: 100% !important;
-    height: auto !important; /* Ajusta la altura automáticamente */
-    max-height: 400px; /* Establecer un límite de altura */
-}
-
-/* Estilo estándar para los gráficos en la primera fila */
-.chart-container {
-    flex: 1; /* Permite que los gráficos se expandan proporcionalmente */
-    max-width: 45%; /* Ancho mayor para los gráficos en la primera fila */
-    background-color: #ffffff; /* Fondo blanco para cada gráfico */
-    padding: 20px; /* Espaciado interno */
-    border-radius: 10px; /* Bordes redondeados */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra ligera alrededor del gráfico */
-    text-align: center; /* Centra el texto en el contenedor */
-    transition: transform 0.3s ease; /* Efecto de transición al hacer hover */
-}
-
-.chart-container:hover {
-    transform: scale(1.02); /* Aumenta el tamaño ligeramente al pasar el mouse */
-}
-
-.chart-container h2 {
-    font-size: 18px; /* Tamaño de fuente para los títulos de las gráficas */
-    color: #4B0082; /* Color púrpura para el texto */
-    margin-bottom: 15px; /* Espaciado inferior */
-}
-
-canvas {
-    width: 100% !important; /* Ajusta el ancho del canvas al 100% del contenedor */
-    height: 350px !important; /* Fija la altura del canvas */
-}
-
-.chart-container p {
-    font-size: 14px; /* Tamaño de fuente para los textos descriptivos */
-    color: #4B0082; /* Color púrpura para el texto */
-    text-align: center; /* Centra el texto */
-    margin-top: 10px; /* Margen superior */
-    max-width: 90%; /* Ancho máximo del texto */
-    margin-left: auto; /* Centra horizontalmente */
-    margin-right: auto; /* Centra horizontalmente */
 }
 
 .chart-container {
@@ -146,7 +124,6 @@ canvas {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    text-align: center;
     flex: 1;
     max-width: 45%;
     background-color: #ffffff;
@@ -154,19 +131,22 @@ canvas {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    text-align: center;
+}
+
+.chart-container:hover {
+    transform: scale(1.02);
 }
 
 .chart-container h2 {
     font-size: 18px;
     color: #4B0082;
     margin-bottom: 15px;
-    text-align: center;
 }
 
 .chart-container p {
     font-size: 14px;
     color: #4B0082;
-    text-align: center;
     margin-top: 10px;
     max-width: 90%;
 }
@@ -177,77 +157,7 @@ canvas {
     max-height: 350px;
 }
 
-.logout-button {
-    background-color: #6A0DAD; /* Morado fuerte */
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-}
-
-
-.logout-button:hover {
-    background-color: #4B0082; /* Morado más oscuro al pasar el mouse */
-}
-
-/* === NUEVO: Tabla de usuarios y historial de chat === */
-
-.user-table-section, .chat-history-section {
-    width: 90%;
-    max-width: 1200px;
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px auto; /* Centrado */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
-}
-
-.user-table-section h2,
-.chat-history-section h2 {
-    color: #4B0082; /* Color púrpura para los títulos */
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#usersTable {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-#usersTable th, #usersTable td {
-    border: 1px solid #ddd;
-    padding: 12px 15px;
-    text-align: left;
-}
-
-#usersTable tr:hover {
-    background-color: #f1f1f1;
-    cursor: pointer;
-}
-
-#usersTable th {
-    background-color: #6A0DAD; /* Morado */
-    color: white;
-}
-
-#chatHistoryContainer {
-    margin-top: 15px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Estilo interno de mensajes del historial */
-#chatHistoryContainer p {
-    margin: 8px 0;
-    color: #333;
-}
-
+/* === USERS AND CHAT HISTORY === */
 .user-history-section {
     display: flex;
     width: 90%;
@@ -259,19 +169,19 @@ canvas {
     overflow: hidden;
 }
 
-.users-list {
-    width: 30%;
+.users-list, .chat-history {
     padding: 20px;
-    border-right: 1px solid #ccc;
     overflow-y: auto;
     max-height: 500px;
 }
 
+.users-list {
+    width: 30%;
+    border-right: 1px solid #ccc;
+}
+
 .chat-history {
     width: 70%;
-    padding: 20px;
-    overflow-y: auto;
-    max-height: 500px;
 }
 
 #usersTable {
@@ -285,22 +195,25 @@ canvas {
     text-align: left;
 }
 
+#usersTable th {
+    background-color: #6A0DAD;
+    color: white;
+}
+
 #usersTable tr:hover {
     background-color: #f1f1f1;
     cursor: pointer;
 }
 
+#chatHistoryContainer {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
 #chatHistoryContainer p {
     margin: 8px 0;
+    color: #333;
 }
-
-.button-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-left: auto;
-    margin-right: 50px; /* 👈 Nuevo margen para mover a la izquierda */
-}
-
-
-

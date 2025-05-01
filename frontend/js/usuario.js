@@ -1,31 +1,35 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
 
-    function isValidEmail(email) {
-        return /^[^@\s]+@(gmail\.com|outlook\.com|hotmail\.com|upc\.edu\.pe)$/.test(email);
-    }    
+    const isValidEmail = email =>
+        /^[^@\s]+@(gmail\.com|outlook\.com|hotmail\.com|upc\.edu\.pe)$/.test(email);
 
-    async function validarUsuario(email) {
+    const validarUsuario = async (email) => {
         if (!isValidEmail(email)) {
             alert("El formato del correo no es válido.");
             return false;
         }
 
-        const response = await fetch(`${API_BASE_URL}/check_user`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
+        try {
+            const res = await fetch(`${API_BASE_URL}/check_user`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
 
-        if (!response.ok) {
-            const data = await response.json();
-            alert(data.error || 'El correo no está registrado. Por favor, ingresa uno válido.');
+            if (!res.ok) {
+                const data = await res.json();
+                alert(data.error || 'El correo no está registrado. Por favor, ingresa uno válido.');
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error("Error validando el usuario:", error);
+            alert("Hubo un problema al validar el usuario.");
             return false;
         }
-
-        return true;
-    }
+    };
 
     class ChatInterface {
         constructor() {
@@ -40,40 +44,36 @@ document.addEventListener('DOMContentLoaded', () => {
             this.messageInput = document.querySelector('.message-input');
             this.sendButton = document.querySelector('.send-button');
             this.userEmail = localStorage.getItem('user_email');
-
             this.initialize();
         }
 
         async initialize() {
-            if (!this.userEmail || !(await validarUsuario(this.userEmail))) {
+            const valid = this.userEmail && await validarUsuario(this.userEmail);
+            if (!valid) {
                 localStorage.removeItem('user_email');
                 window.location.href = '/frontend/pages/main.html';
                 return;
             }
-            this.setupEventListeners();
-            this.askQuestion();
-        }
 
-        setupEventListeners() {
             this.sendButton.addEventListener('click', () => this.handleSendMessage());
-            this.messageInput.addEventListener('keypress', (e) => {
+            this.messageInput.addEventListener('keypress', e => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     this.handleSendMessage();
                 }
             });
+
+            this.askQuestion();
         }
 
         handleSendMessage() {
-            const message = this.messageInput.value.trim();
-            if (!message) return;
+            const msg = this.messageInput.value.trim();
+            if (!msg) return;
 
-            this.addMessage(message, false);
-
-            const currentQuestion = this.questions[this.currentQuestionIndex];
+            this.addMessage(msg, false);
             this.responses.push({
-                pregunta: currentQuestion,
-                respuesta: message
+                pregunta: this.questions[this.currentQuestionIndex],
+                respuesta: msg
             });
 
             this.messageInput.value = '';
@@ -87,26 +87,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        addMessage(message, isAssistant = true) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${isAssistant ? 'assistant' : 'user'}`;
-            messageDiv.textContent = message;
-            this.chatWindow.appendChild(messageDiv);
-            this.scrollToBottom();
-        }
-
-        scrollToBottom() {
+        addMessage(text, isAssistant = true) {
+            const div = document.createElement('div');
+            div.className = `chat-message ${isAssistant ? 'assistant' : 'user'}`;
+            div.textContent = text;
+            this.chatWindow.appendChild(div);
             this.chatWindow.scrollTop = this.chatWindow.scrollHeight;
         }
 
         askQuestion() {
-            const question = this.questions[this.currentQuestionIndex];
-            this.addMessage(question, true);
+            this.addMessage(this.questions[this.currentQuestionIndex]);
         }
 
         async analyzeSentiment() {
             try {
-                const response = await fetch(`${API_BASE_URL}/sentiment_analysis`, {
+                const res = await fetch(`${API_BASE_URL}/sentiment_analysis`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -115,12 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Error en el análisis de sentimiento');
-                }
+                if (!res.ok) throw new Error('Error en el análisis de sentimiento');
 
                 console.log("Sentimiento registrado correctamente.");
                 window.location.href = '/frontend/pages/agradecimiento.html';
+
             } catch (error) {
                 console.error('Error al analizar sentimiento:', error);
                 alert('Ocurrió un error al procesar tus respuestas. Inténtalo más tarde.');
@@ -128,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         finishChat() {
-            this.addMessage("¡Gracias por tus respuestas! Tu opinión es muy importante para nosotros.", true);
+            this.addMessage("¡Gracias por tus respuestas! Tu opinión es muy importante para nosotros.");
             this.messageInput.disabled = true;
             this.sendButton.disabled = true;
         }

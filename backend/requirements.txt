@@ -1,10 +1,7 @@
 flask
 flask-cors
-librosa
-speechrecognition
-requests
-python-dotenv
 google-cloud-firestore
+python-dotenv
 reportlab
+requests
 transformers
-torch

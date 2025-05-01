@@ -1,3 +1,4 @@
+/* === ESTRUCTURA GENERAL === */
 body {
     margin: 0;
     height: 100vh;
@@ -18,95 +19,68 @@ body {
     transform: translateX(-20px);
 }
 
+/* === FORMULARIO DE USUARIO === */
 .user-info-form {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 280px;
     margin: 0 auto 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.user-info-form .input-group {
+.input-group {
     margin-bottom: 15px;
 }
 
-.user-info-form .input-group input {
+.input-group input {
     width: 100%;
     padding: 10px;
     font-size: 16px;
+    text-align: center;
     border: 1px solid #6200EA;
     border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.2);
     color: white;
-    text-align: center;
     box-sizing: border-box;
 }
 
-.user-info-form .input-group input::placeholder {
+.input-group input::placeholder {
     color: rgba(255, 255, 255, 0.7);
 }
 
-.user-info-form button {
+/* === BOTÓN PRINCIPAL (form) === */
+.user-info-form button,
+.buttons button,
+.empresa-button {
     width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    background-color: #6200EA;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.user-info-form button:hover {
-    background-color: #7e3ff2;
-}
-
-.buttons button {
-    display: block;
-    width: 200px;
-    padding: 15px;
+    max-width: 200px;
+    padding: 12px 15px;
     margin: 10px auto;
     font-size: 16px;
     font-weight: bold;
+    color: white;
+    background-color: #6200EA;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: #6200EA;
-    color: white;
     transition: background-color 0.3s;
 }
 
-.buttons button:hover {
-    background-color: #7e3ff2;
-}
-
-.buttons button:active {
-    transform: scale(0.98);
-}
-
-.empresa-button {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    width: 200px;
-    padding: 15px;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background-color: #6200EA;
-    color: white;
-    transition: background-color 0.3s;
-}
-
+.user-info-form button:hover,
+.buttons button:hover,
 .empresa-button:hover {
     background-color: #7e3ff2;
 }
 
+.buttons button:active,
 .empresa-button:active {
     transform: scale(0.98);
+}
+
+/* === BOTÓN FIJO EMPRESA === */
+.empresa-button {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
 }

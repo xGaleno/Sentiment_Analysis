@@ -4,13 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página Principal</title>
+
+    <!-- Estilos -->
     <link rel="stylesheet" href="/frontend/css/main.css">
 </head>
 <body>
-    <div class="container">
+
+    <main class="container">
+
+        <!-- Logo -->
         <div class="logo">
             <img src="/frontend/Assets/Compras.png" alt="Logo">
         </div>
+
+        <!-- Formulario -->
         <form class="user-info-form">
             <div class="input-group">
                 <input type="text" id="name" placeholder="Nombre" required>
@@ -23,11 +30,15 @@
             </div>
             <button type="button" onclick="enterUser()">Usuario</button>
         </form>
-        <div class="buttons">
-            <button class="empresa-button" onclick="location.href='/frontend/pages/empresa_login.html'">Empresa</button>
-        </div>        
-    </div>
 
+        <!-- Botón Empresa -->
+        <button class="empresa-button" onclick="location.href='/frontend/pages/empresa_login.html'">
+            Empresa
+        </button>
+
+    </main>
+
+    <!-- Script -->
     <script src="/frontend/js/main.js"></script>
     <script>
         async function enterUser() {
@@ -41,24 +52,18 @@
             }
 
             if (name && age && email) {
-
-                // Guardar información en localStorage
                 localStorage.setItem('user_name', name);
                 localStorage.setItem('user_age', age);
                 localStorage.setItem('user_email', email);
 
-                // Enviar datos al backend para registrar el usuario
                 try {
                     const response = await fetch('http://127.0.0.1:5000/api/register_user', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ name, age, email })
                     });
 
                     if (response.ok) {
-                        // Redirigir al chat si el registro fue exitoso
                         window.location.href = '/frontend/pages/usuario.html';
                     } else {
                         const errorData = await response.json();

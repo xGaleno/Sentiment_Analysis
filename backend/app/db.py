@@ -1,25 +1,27 @@
 import os
-from google.cloud import firestore
-from dotenv import load_dotenv
 from datetime import datetime
+from dotenv import load_dotenv
+from google.cloud import firestore
 
-load_dotenv()  # Carga variables de entorno
+# Cargar variables de entorno
+load_dotenv()
 
-# Lazy client initializer
+# Cliente Firestore con inicialización diferida (lazy)
 _firestore_client = None
 
 def get_db():
+    """Devuelve una instancia única del cliente de Firestore."""
     global _firestore_client
     if _firestore_client is None:
         _firestore_client = firestore.Client()
     return _firestore_client
 
-# === FUNCIONES DE USO ===
+# === Funciones de usuarios ===
 
 def add_user(name, age, email):
+    """Agrega un nuevo usuario a la colección 'users'."""
     db = get_db()
-    doc_ref = db.collection('users').document(email)
-    doc_ref.set({
+    db.collection('users').document(email).set({
         'name': name,
         'age': age,
         'email': email,
@@ -27,16 +29,19 @@ def add_user(name, age, email):
     })
 
 def get_user_by_email(email):
+    """Obtiene un documento de usuario por su email."""
     db = get_db()
-    doc_ref = db.collection('users').document(email)
-    return doc_ref.get()
+    return db.collection('users').document(email).get()
 
 def get_all_users():
+    """Devuelve todos los usuarios registrados como lista de diccionarios."""
     db = get_db()
-    users_ref = db.collection('users')
-    return [doc.to_dict() for doc in users_ref.stream()]
+    return [doc.to_dict() for doc in db.collection('users').stream()]
+
+# === Funciones de comentarios ===
 
 def add_comment(usuario, pregunta, respuesta, sentimiento, polaridad):
+    """Agrega un comentario con análisis de sentimiento."""
     db = get_db()
     db.collection('comments').add({
         'usuario': usuario,
@@ -48,12 +53,12 @@ def add_comment(usuario, pregunta, respuesta, sentimiento, polaridad):
     })
 
 def get_all_comments():
+    """Devuelve todos los comentarios ordenados por fecha."""
     db = get_db()
-    comments_ref = db.collection('comments').order_by('timestamp')
-    return [doc.to_dict() for doc in comments_ref.stream()]
+    return [doc.to_dict() for doc in db.collection('comments').order_by('timestamp').stream()]
 
 def clear_comments():
+    """Elimina todos los documentos de la colección 'comments'."""
     db = get_db()
-    comments_ref = db.collection('comments')
-    for doc in comments_ref.stream():
+    for doc in db.collection('comments').stream():
         doc.reference.delete()

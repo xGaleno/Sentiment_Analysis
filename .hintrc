@@ -1,12 +1,10 @@
 {
-  "extends": [
-    "development"
-  ],
+  "extends": ["development"],
   "hints": {
     "axe/name-role-value": [
       "default",
       {
-        "button-name": "off"
+        "button-name": "off"  // Desactiva la regla que exige nombre accesible en botones
       }
     ]
   }

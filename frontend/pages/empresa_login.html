@@ -1,29 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login Empresa</title>
-    <link rel="stylesheet" href="/frontend/css/empresa_login.css">
+
+    <!-- 🧾 Estilos personalizados -->
+    <link rel="stylesheet" href="/frontend/css/empresa_login.css" />
 </head>
 <body>
+
+    <!-- ===================================================
+         CONTENEDOR PRINCIPAL DE LOGIN
+    =================================================== -->
     <div class="container">
+        <!-- 🔷 Logo de la empresa o marca -->
         <div class="logo">
-            <img src="/frontend/Assets/Compras.png" alt="Logo">
+            <img src="/frontend/Assets/Compras.png" alt="Logo" />
         </div>
+
+        <!-- 🔐 Formulario de autenticación -->
         <form class="login-form">
             <div class="input-group">
-                <input type="text" placeholder="Username" required>
+                <input type="text" placeholder="Username" required />
             </div>
             <div class="input-group">
-                <input type="password" placeholder="Password" required>
+                <input type="password" placeholder="Password" required />
             </div>
             <button type="submit" class="login-button">Login</button>
         </form>
     </div>
-    <!-- Importar primero el ApiService -->
+
+    <!-- ===================================================
+         SCRIPTS DE FUNCIONALIDAD
+    =================================================== -->
+
+    <!-- 1️⃣ Cargar ApiService (contiene lógica de loginEmpresa) -->
     <script src="/frontend/js/api.js"></script>
-    <!-- Luego importar el script de login -->
+
+    <!-- 2️⃣ Script del formulario (usa ApiService) -->
     <script src="/frontend/js/empresa_login.js"></script>
+
 </body>
 </html>

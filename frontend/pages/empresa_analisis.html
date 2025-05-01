@@ -1,100 +1,120 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Empresa Análisis</title>
-    <link rel="stylesheet" href="/frontend/css/empresa_analisis.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Análisis - Empresa</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="/frontend/css/empresa_analisis.css" />
+
+    <!-- Chart.js y plugins -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 </head>
 <body>
 
+    <!-- ====================================================
+         ENCABEZADO DE LA PÁGINA
+    ===================================================== -->
     <header class="header">
         <a href="/frontend/pages/empresa_login.html" class="back-arrow">←</a>
-        <img src="/frontend/Assets/robot.png" alt="Logo Diha" class="logo">
+        <img src="/frontend/Assets/robot.png" alt="Logo Diha" class="logo" />
         <span class="diha-text">Diha</span>
-    
+
         <div class="button-group">
             <button id="refreshButton" class="logout-button">Actualizar Datos</button>
             <button id="exportCSVButton" class="logout-button">Exportar CSV</button>
             <button id="generatePDFButton" class="logout-button">Generar Reporte PDF</button>
             <button id="logoutButton" class="logout-button">Cerrar Sesión</button>
         </div>
-        
     </header>
-    
+
+    <!-- ====================================================
+         CONTENIDO PRINCIPAL
+    ===================================================== -->
     <main>
-        <div class="statistics-box">
-            <h1>Statistics</h1>
-            <!-- Botones de filtro por año -->
+
+        <!-- 🎯 Filtros -->
+        <section class="statistics-box">
+            <h1>Estadísticas</h1>
             <div class="year-filter">
                 <button id="2023" class="selected">2023</button>
                 <button id="2024" class="selected">2024</button>
                 <button id="2025" class="selected">2025</button>
             </div>
-        </div>
+        </section>
 
-        <!-- NUEVO: Contenedor horizontal usuarios y historial -->
+        <!-- 👥 Usuarios y historial de chat -->
         <section class="user-history-section">
             <div class="users-list">
                 <h2>Usuarios</h2>
                 <table id="usersTable">
-                    <thead>
-                        <tr><th>Correo Electrónico</th></tr>
-                    </thead>
-                    <tbody>
-                        <!-- Usuarios cargados dinámicamente -->
-                    </tbody>
+                    <thead><tr><th>Correo Electrónico</th></tr></thead>
+                    <tbody><!-- Carga dinámica --></tbody>
                 </table>
             </div>
             <div class="chat-history">
                 <h2>Historial de Chat</h2>
-                <div id="chatHistoryContainer">
-                    <!-- Historial de preguntas y respuestas cargado dinámicamente -->
-                </div>
+                <div id="chatHistoryContainer"><!-- Dinámico --></div>
             </div>
         </section>
 
-        <!-- Primera fila con dos gráficos -->
-        <div class="charts-row">
+        <!-- 🟦 Primera fila de gráficos -->
+        <section class="charts-row">
             <div class="chart-container">
                 <h2>Sentimiento Promedio por Intervalo de Tiempo</h2>
                 <canvas id="averageSentimentChart"></canvas>
-                <p>El "Sentimiento Promedio" muestra la tendencia general de los sentimientos a lo largo del tiempo.</p>
+                <p>
+                    El "Sentimiento Promedio" muestra la tendencia general de los sentimientos a lo largo del tiempo.
+                </p>
             </div>
             <div class="chart-container">
                 <h2>Varianza del Sentimiento por Intervalo de Tiempo</h2>
                 <canvas id="varianceSentimentChart"></canvas>
-                <p>La "Varianza del Sentimiento" muestra la dispersión de los sentimientos, ayudando a identificar la consistencia del sentimiento en un periodo específico.</p>
+                <p>
+                    La "Varianza del Sentimiento" muestra la dispersión de los sentimientos, ayudando a identificar la consistencia del sentimiento en un periodo específico.
+                </p>
             </div>
-        </div>
+        </section>
 
-        <!-- Segunda fila con dos gráficos -->
-        <div class="charts-row">
+        <!-- 🟥 Segunda fila de gráficos -->
+        <section class="charts-row">
             <div class="chart-container single-chart">
                 <h2>Distribución de Sentimientos</h2>
                 <canvas id="sentimentDistributionChart"></canvas>
-                <p>La "Distribución de Sentimientos" muestra el porcentaje de comentarios positivos, neutros y negativos.</p>
+                <p>
+                    La "Distribución de Sentimientos" muestra el porcentaje de comentarios positivos, neutros y negativos.
+                </p>
             </div>
             <div class="chart-container single-chart">
                 <h2>Tendencia de Comentarios Positivos</h2>
                 <canvas id="nuevoGrafico"></canvas>
-                <p>Este gráfico muestra la tendencia de los comentarios positivos a lo largo del tiempo, permitiendo a las empresas identificar periodos de mejora o deterioro en la percepción de sus clientes.</p>
+                <p>
+                    Este gráfico muestra la tendencia de los comentarios positivos a lo largo del tiempo, permitiendo a las empresas identificar periodos de mejora o deterioro en la percepción de sus clientes.
+                </p>
             </div>
-        </div>
+        </section>
 
-        <!-- Tercera fila con un solo gráfico -->
-        <div class="charts-row">
+        <!-- 🟨 Tercera fila de gráfico -->
+        <section class="charts-row">
             <div class="chart-container single-chart">
                 <h2>Usuarios Registrados por Rango de Edad</h2>
                 <canvas id="tercerGrafico"></canvas>
-                <p>Este gráfico muestra la cantidad de usuarios registrados clasificados por rangos de edad.</p>
+                <p>
+                    Este gráfico muestra la cantidad de usuarios registrados clasificados por rangos de edad.
+                </p>
             </div>
-        </div>
-    </main>    
+        </section>
 
-    <script src="/frontend/js/empresa_analisis.js"></script>
+    </main>
+
+    <!-- ====================================================
+         MÓDULOS DE LÓGICA JS IMPORTADOS
+    ===================================================== -->
+    <script type="module" src="/frontend/js/charts.js"></script>
+    <script type="module" src="/frontend/js/empresa_analisis.js"></script>
+
 </body>
 </html>
