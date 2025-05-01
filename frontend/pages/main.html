@@ -7,6 +7,7 @@
 
     <!-- Estilos -->
     <link rel="stylesheet" href="/frontend/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
 </head>
 <body>
 
@@ -28,55 +29,113 @@
             <div class="input-group">
                 <input type="email" id="email" placeholder="Correo" required>
             </div>
-            <button type="button" onclick="enterUser()">Usuario</button>
+            <button type="button" onclick="enterUser()">Ingresar</button>
         </form>
 
         <!-- Botón Empresa -->
-        <button class="empresa-button" onclick="location.href='/frontend/pages/empresa_login.html'">
-            Empresa
-        </button>
+        <button class="empresa-button" onclick="location.href='/frontend/pages/empresa_login.html'" title="Acceso Empresa">
+            <span class="material-symbols-rounded">location_city</span>
+        </button>        
 
     </main>
 
     <!-- Script -->
     <script src="/frontend/js/main.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ageInputField = document.getElementById('age');
+    
+            // Bloqueo de teclas no numéricas y limitar a 2 dígitos
+            ageInputField.addEventListener('keydown', function (e) {
+                const invalidKeys = ['.', ',', 'e', '+', '-', ' '];
+                const isNumberKey = /^\d$/.test(e.key);
+                const isControlKey = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(e.key);
+    
+                // Evitar cualquier tecla que no sea número o control
+                if (!isNumberKey && !isControlKey) {
+                    e.preventDefault();
+                }
+    
+                // Limitar a 2 dígitos
+                const value = e.target.value;
+                if (isNumberKey && value.length >= 2 && window.getSelection().toString().length === 0) {
+                    e.preventDefault();
+                }
+    
+                if (invalidKeys.includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+    
+            // Previene pegar texto no numérico o de más de 2 caracteres
+            ageInputField.addEventListener('paste', function (e) {
+                const pasted = e.clipboardData.getData('text');
+                if (!/^\d{1,2}$/.test(pasted)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    
         async function enterUser() {
-            const name = document.getElementById('name').value;
-            const age = document.getElementById('age').value;
-            const email = document.getElementById('email').value;
-
-            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+$/.test(name)) {
-                alert("El nombre solo debe contener letras.");
+            const name = document.getElementById('name').value.trim();
+            const ageInput = document.getElementById('age').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+    
+            // === Validaciones estrictas ===
+    
+            // Nombre: letras y espacios, mínimo 2 caracteres
+            if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}$/.test(name)) {
+                alert("El nombre debe tener solo letras y al menos 2 caracteres.");
                 return;
             }
-
-            if (name && age && email) {
-                localStorage.setItem('user_name', name);
-                localStorage.setItem('user_age', age);
-                localStorage.setItem('user_email', email);
-
-                try {
-                    const response = await fetch('http://127.0.0.1:5000/api/register_user', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name, age, email })
-                    });
-
-                    if (response.ok) {
-                        window.location.href = '/frontend/pages/usuario.html';
-                    } else {
-                        const errorData = await response.json();
-                        alert("Error al registrar el usuario: " + errorData.error);
-                    }
-                } catch (error) {
-                    console.error("Error al enviar la solicitud de registro:", error);
-                    alert("Error al conectar con el servidor.");
+    
+            // Edad: solo números enteros entre 13 y 99
+            if (!/^\d{1,2}$/.test(ageInput)) {
+                alert("La edad debe ser un número de hasta 2 dígitos.");
+                return;
+            }
+    
+            const age = Number(ageInput);
+            if (isNaN(age) || age < 13 || age > 99) {
+                alert("La edad debe estar entre 13 y 99 años.");
+                return;
+            }
+    
+            // Email válido con dominio permitido
+            const allowedDomains = ['gmail.com', 'outlook.com', 'hotmail.com', 'upc.edu.pe'];
+            const emailParts = email.split('@');
+            if (
+                emailParts.length !== 2 ||
+                !allowedDomains.includes(emailParts[1]) ||
+                !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+            ) {
+                alert("Por favor ingresa un correo válido (gmail, outlook, hotmail, upc.edu.pe).");
+                return;
+            }
+    
+            // === Registro ===
+            localStorage.setItem('user_name', name);
+            localStorage.setItem('user_age', age);
+            localStorage.setItem('user_email', email);
+    
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/register_user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, age, email })
+                });
+    
+                if (response.ok) {
+                    window.location.href = '/frontend/pages/usuario.html';
+                } else {
+                    const errorData = await response.json();
+                    alert("Error al registrar el usuario: " + errorData.error);
                 }
-            } else {
-                alert("Por favor, complete todos los campos.");
+            } catch (error) {
+                console.error("Error al conectar con el servidor:", error);
+                alert("No se pudo registrar el usuario. Intenta más tarde.");
             }
         }
-    </script>
+    </script>    
 </body>
 </html>
