@@ -128,6 +128,19 @@ def register_routes(app):
         except Exception as e:
             return jsonify({"error": f"Error getting users: {str(e)}"}), 500
 
+    @app.route('/api/delete_user/<email>', methods=['DELETE'])
+    def delete_user(email):
+        try:
+            # 🔥 Asegúrate de tener estas funciones en db.py
+            from .db import delete_user_by_email, delete_comments_by_email
+
+            delete_user_by_email(email)
+            delete_comments_by_email(email)
+
+            return jsonify({"message": f"Usuario {email} y sus comentarios fueron eliminados."}), 200
+        except Exception as e:
+            return jsonify({"error": f"Error al eliminar usuario: {str(e)}"}), 500
+
     @app.route('/api/check_user', methods=['POST'])
     def check_user():
         email = request.json.get("email")

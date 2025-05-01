@@ -38,6 +38,11 @@ def get_all_users():
     db = get_db()
     return [doc.to_dict() for doc in db.collection('users').stream()]
 
+def delete_user_by_email(email):
+    """Elimina un usuario de la colección 'users' por su email."""
+    db = get_db()
+    db.collection('users').document(email).delete()
+
 # === Funciones de comentarios ===
 
 def add_comment(usuario, pregunta, respuesta, sentimiento, polaridad):
@@ -62,3 +67,10 @@ def clear_comments():
     db = get_db()
     for doc in db.collection('comments').stream():
         doc.reference.delete()
+
+def delete_comments_by_email(email):
+    """Elimina todos los comentarios asociados a un email."""
+    db = get_db()
+    comments = db.collection('comments').where('usuario', '==', email).stream()
+    for comment in comments:
+        comment.reference.delete()

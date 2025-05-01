@@ -30,10 +30,41 @@ export function renderUsersTable(users, onRowClick) {
 
     filtered.forEach(user => {
         const row = document.createElement('tr');
-        row.innerHTML = `<td>${user.email}</td>`;
+        row.innerHTML = `
+            <td>${user.email}</td>
+            <td><button class="delete-user-button" data-email="${user.email}">✖</button></td>
+        `;
+    
+        // Historial al hacer clic en fila
         row.addEventListener('click', () => onRowClick(user.email));
+    
+        // Lógica de eliminación
+        const deleteButton = row.querySelector('.delete-user-button');
+        deleteButton.addEventListener('click', async (e) => {
+            e.stopPropagation(); // Evita activar historial
+            const email = e.target.dataset.email;
+    
+            const confirmDelete = confirm(`¿Eliminar todos los comentarios del usuario ${email}?`);
+            if (!confirmDelete) return;
+    
+            try {
+                const res = await fetch(`http://localhost:5000/api/delete_user/${encodeURIComponent(email)}`, {
+                    method: 'DELETE'
+                });
+    
+                if (!res.ok) throw new Error("Error al eliminar usuario");
+    
+                alert("Usuario eliminado correctamente");
+                location.reload(); // o recargar tabla si prefieres
+            } catch (err) {
+                console.error("Error al eliminar usuario:", err);
+                alert("No se pudo eliminar el usuario");
+            }
+        });
+    
         tbody.appendChild(row);
     });
+    
 }
 
 /**

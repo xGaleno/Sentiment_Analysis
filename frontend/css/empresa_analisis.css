@@ -263,3 +263,20 @@ canvas {
     color: #4B0082;            /* texto morado */
     font-weight: bold;
 }
+
+/* 🔴 BOTÓN ELIMINAR USUARIO INDIVIDUAL */
+
+.delete-user-button {
+    background-color: #ff4d4d;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    line-height: 24px;
+    transition: background-color 0.3s ease;
+}
