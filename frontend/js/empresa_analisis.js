@@ -138,20 +138,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 📄 BOTÓN: GENERAR REPORTE PDF
     // ====================================================================
     document.getElementById('generatePDFButton')?.addEventListener('click', async () => {
-        const res = await fetch(`${API_BASE_URL}/generate_report`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ comentarios: allCommentsData })
-        });
-
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'reporte_comentarios.pdf';
-        link.click();
-        URL.revokeObjectURL(url);
-    });
+        try {
+            const resComentarios = await fetch(`${API_BASE_URL}/comments`);
+            if (!resComentarios.ok) throw new Error("No se pudieron obtener los comentarios.");
+            const comentarios = await resComentarios.json();
+    
+            const resPDF = await fetch(`${API_BASE_URL}/generate_report`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comentarios })
+            });
+    
+            if (!resPDF.ok) throw new Error("Error al generar el PDF.");
+            const blob = await resPDF.blob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'reporte_comentarios.pdf';
+            link.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            alert("Error generando el PDF: " + err.message);
+            console.error(err);
+        }
+    });    
 
     // ====================================================================
     // ⏱️ AUTO-REFRESH CADA 10 SEGUNDOS
