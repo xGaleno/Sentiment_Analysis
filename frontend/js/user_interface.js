@@ -85,10 +85,12 @@ export function renderChatHistory(comments, userEmail) {
         userComments.forEach(c => {
             const pregunta = c.pregunta || '(Pregunta no disponible)';
             const respuesta = c.respuesta || '(Respuesta no disponible)';
+            const sentimiento = c.sentimiento || c.sentiment || '(Sin dato)';
             const block = document.createElement('div');
             block.innerHTML = `
                 <p><strong>Pregunta:</strong> ${pregunta}</p>
                 <p><strong>Respuesta:</strong> ${respuesta}</p>
+                <p><strong>Sentimiento:</strong> ${sentimiento}</p>
                 <hr>
             `;
             container.appendChild(block);
