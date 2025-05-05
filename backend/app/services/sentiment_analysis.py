@@ -2,7 +2,7 @@ import os
 import requests
 import re
 
-API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyD6e8l8vNIvp_8dgNyeG5DGCTyF-xHYUK0")
+API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAeqdJSv2fxlM18pBzG-AKLVgpKTyoco3A")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
 
 def analyze_sentiment(text: str) -> str:
@@ -10,10 +10,19 @@ def analyze_sentiment(text: str) -> str:
     Analiza el sentimiento del comentario. Devuelve 'positivo', 'negativo', 'neutro' o 'nulo' si no tiene sentido.
     """
     headers = { "Content-Type": "application/json" }
+    contexto = (
+        "Contexto: La empresa Alicia Modas es una PYME familiar ubicada en Mendoza, Argentina, "
+        "dedicada a la venta de indumentaria femenina y accesorios de moda. Ofrece productos de "
+        "fabricación propia y nacionales, destacándose por su atención personalizada y fuerte presencia en redes sociales."
+    )
+
     payload = {
         "contents": [{
             "parts": [{
-                "text": f"Analiza el sentimiento del siguiente comentario y responde solo con una palabra (positivo, negativo o neutro): '{text}'"
+                "text": (
+                    f"{contexto} Analiza el sentimiento del siguiente comentario del cliente "
+                    f"y responde solo con una palabra (positivo, negativo o neutro): '{text}'"
+                )
             }]
         }]
     }
