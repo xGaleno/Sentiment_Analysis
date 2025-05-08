@@ -51,10 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const valid = this.userEmail && await validarUsuario(this.userEmail);
             if (!valid) {
                 localStorage.removeItem('user_email');
-                window.location.href = '/templates/main.html';
+                window.location.href = '/';  // ✅ Ruta Flask principal
                 return;
             }
-
+        
             this.sendButton.addEventListener('click', () => this.handleSendMessage());
             this.messageInput.addEventListener('keypress', e => {
                 if (e.key === 'Enter') {
@@ -62,9 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.handleSendMessage();
                 }
             });
-
+        
             this.askQuestion();
-        }
+        }        
 
         handleSendMessage() {
             const msg = this.messageInput.value.trim();
@@ -110,17 +110,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         respuestas: this.responses
                     })
                 });
-
+        
                 if (!res.ok) throw new Error('Error en el análisis de sentimiento');
-
+        
                 console.log("Sentimiento registrado correctamente.");
-                window.location.href = '/templates/agradecimiento.html';
-
+                window.location.href = '/agradecimiento';  // ✅ Ruta Flask, no HTML directo
+        
             } catch (error) {
                 console.error('Error al analizar sentimiento:', error);
                 alert('Ocurrió un error al procesar tus respuestas. Inténtalo más tarde.');
             }
-        }
+        }        
 
         finishChat() {
             this.addMessage("¡Gracias por tus respuestas! Tu opinión es muy importante para nosotros.");
