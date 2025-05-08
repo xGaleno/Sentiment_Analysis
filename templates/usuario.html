@@ -6,14 +6,14 @@
     <title>Chat Usuario</title>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="/frontend/css/usuario.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuario.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
     <header class="header">
-        <a href="/frontend/pages/main.html" class="back-arrow">←</a>
-        <img src="/frontend/Assets/robot.png" alt="Logo Diha" class="logo">
+        <a href="{{ url_for('main') }}" class="back-arrow">←</a>
+        <img src="{{ url_for('static', filename='Assets/robot.png') }}" alt="Logo Diha" class="logo">
         <span class="diha-text">Diha</span>
     </header>
 
@@ -34,6 +34,6 @@
         </form>
     </main>
 
-    <script src="/frontend/js/usuario.js"></script>
+    <script src="{{ url_for('static', filename='js/usuario.js') }}"></script>
 </body>
 </html>

@@ -6,7 +6,7 @@
     <title>Gracias por tu comentario</title>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="../css/agradecimiento.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/agradecimiento.css') }}">
 </head>
 <body>
 
@@ -14,7 +14,7 @@
         <div class="card">
             <h1>🎉 ¡Gracias por tu comentario!</h1>
             <p>Tu opinión nos ayuda a mejorar nuestros servicios.</p>
-            <a href="main.html" class="btn-volver">Volver al inicio</a>
+            <a href="{{ url_for('main') }}" class="btn-volver">Volver al inicio</a>
         </div>
     </main>
 

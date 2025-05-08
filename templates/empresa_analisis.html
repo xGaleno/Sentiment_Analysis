@@ -6,7 +6,7 @@
     <title>Panel de Análisis - Empresa</title>
 
     <!-- Estilos -->
-    <link rel="stylesheet" href="/frontend/css/empresa_analisis.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/empresa_analisis.css') }}">
 
     <!-- Chart.js y plugins -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,8 +19,8 @@
          ENCABEZADO DE LA PÁGINA
     ===================================================== -->
     <header class="header">
-        <a href="/frontend/pages/empresa_login.html" class="back-arrow">←</a>
-        <img src="/frontend/Assets/robot.png" alt="Logo Diha" class="logo" />
+        <a href="{{ url_for('empresa_login') }}" class="back-arrow">←</a>
+        <img src="{{ url_for('static', filename='Assets/robot.png') }}" alt="Logo Diha" class="logo" />
         <span class="diha-text">Diha</span>
 
         <div class="button-group">
@@ -48,7 +48,6 @@
 
         <div class="age-filter-box">
             <div class="filter-bar">
-                <!-- Botones de edad -->
                 <div class="age-filter-buttons" id="ageFilterButtons">
                     <button class="age-filter-button selected" data-range="18-25">18-25</button>
                     <button class="age-filter-button selected" data-range="26-35">26-35</button>
@@ -59,16 +58,13 @@
             </div>
         </div>        
 
-        <!-- 👥 Usuarios y historial de chat -->
         <div class="historial-layout">
             <div class="users-panel">
                 <h2>Usuarios</h2>
                 <table id="usersTable">
                     <thead>
-                        <tr>
-                          <th>Correo Electrónico</th>
-                        </tr>
-                      </thead>                      
+                        <tr><th>Correo Electrónico</th></tr>
+                    </thead>                      
                     <tbody><!-- Carga dinámica --></tbody>
                 </table>
             </div>
@@ -77,62 +73,46 @@
                 <div id="chatHistoryContainer"><!-- Dinámico --></div>
             </div>
         </div>
-        
 
-        <!-- 🟦 Primera fila de gráficos -->
         <section class="charts-row">
             <div class="chart-container">
                 <h2>Sentimiento Promedio por Intervalo de Tiempo</h2>
                 <canvas id="averageSentimentChart"></canvas>
-                <p>
-                    El "Sentimiento Promedio" muestra la tendencia general de los sentimientos a lo largo del tiempo.
-                </p>
+                <p>El "Sentimiento Promedio" muestra la tendencia general de los sentimientos a lo largo del tiempo.</p>
             </div>
             <div class="chart-container">
                 <h2>Varianza del Sentimiento por Intervalo de Tiempo</h2>
                 <canvas id="varianceSentimentChart"></canvas>
-                <p>
-                    La "Varianza del Sentimiento" muestra la dispersión de los sentimientos, ayudando a identificar la consistencia del sentimiento en un periodo específico.
-                </p>
+                <p>La "Varianza del Sentimiento" muestra la dispersión de los sentimientos, ayudando a identificar la consistencia del sentimiento en un periodo específico.</p>
             </div>
         </section>
 
-        <!-- 🟥 Segunda fila de gráficos -->
         <section class="charts-row">
             <div class="chart-container single-chart">
                 <h2>Distribución de Sentimientos</h2>
                 <canvas id="sentimentDistributionChart"></canvas>
-                <p>
-                    La "Distribución de Sentimientos" muestra el porcentaje de comentarios positivos, neutros y negativos.
-                </p>
+                <p>La "Distribución de Sentimientos" muestra el porcentaje de comentarios positivos, neutros y negativos.</p>
             </div>
             <div class="chart-container single-chart">
                 <h2>Tendencia de Comentarios Positivos</h2>
                 <canvas id="nuevoGrafico"></canvas>
-                <p>
-                    Este gráfico muestra la tendencia de los comentarios positivos a lo largo del tiempo, permitiendo a las empresas identificar periodos de mejora o deterioro en la percepción de sus clientes.
-                </p>
+                <p>Este gráfico muestra la tendencia de los comentarios positivos a lo largo del tiempo, permitiendo a las empresas identificar periodos de mejora o deterioro en la percepción de sus clientes.</p>
             </div>
         </section>
 
-        <!-- 🟨 Tercera fila de gráfico -->
         <section class="charts-row">
             <div class="chart-container single-chart">
                 <h2>Usuarios Registrados por Rango de Edad</h2>
                 <canvas id="tercerGrafico"></canvas>
-                <p>
-                    Este gráfico muestra la cantidad de usuarios registrados clasificados por rangos de edad.
-                </p>
+                <p>Este gráfico muestra la cantidad de usuarios registrados clasificados por rangos de edad.</p>
             </div>
         </section>
-
     </main>
 
     <!-- ====================================================
          MÓDULOS DE LÓGICA JS IMPORTADOS
     ===================================================== -->
-    <script type="module" src="/frontend/js/charts.js"></script>
-    <script type="module" src="/frontend/js/empresa_analisis.js"></script>
-
+    <script type="module" src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/empresa_analisis.js') }}"></script>
 </body>
 </html>
