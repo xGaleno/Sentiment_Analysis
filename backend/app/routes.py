@@ -9,12 +9,12 @@ from .services.generate_report import generate_comments_report
 
 import smtplib
 import threading
-
 from email.mime.text import MIMEText
 from email.header import Header
-from flask import render_template
+
 
 def register_routes(app):
+    # === RUTAS DE FRONTEND ===
     @app.route("/")
     def main():
         return render_template("main.html")
@@ -34,8 +34,6 @@ def register_routes(app):
     @app.route("/agradecimiento")
     def agradecimiento():
         return render_template("agradecimiento.html")
-
-def register_routes(app):
 
     # === REGISTRO DE USUARIO ===
     @app.route('/api/register_user', methods=['POST'])
@@ -68,10 +66,7 @@ def register_routes(app):
         if not get_user_by_email(email).exists:
             return jsonify({"error": "User not found"}), 404
 
-        # 🔒 Validación: ¿El usuario ya envió hoy?
-        from datetime import datetime, timezone
         today = datetime.now(timezone.utc).date()
-
         user_comments = get_all_comments()
         for c in user_comments:
             if c.get("usuario") == email:
@@ -95,9 +90,6 @@ def register_routes(app):
 
             add_comment(email, pregunta, texto, sentimiento, polaridad)
 
-            polaridad = 0.5 if sentimiento == "positivo" else -0.5 if sentimiento == "negativo" else 0.0
-            add_comment(email, pregunta, texto, sentimiento, polaridad)
-
             resultados.append({
                 "pregunta": pregunta,
                 "respuesta": texto,
@@ -118,13 +110,11 @@ def register_routes(app):
         try:
             comments = get_all_comments()
             formatted = []
-
             for c in comments:
                 ts = c.get("timestamp")
                 if not ts or not c.get("sentimiento"):
                     continue
                 ts_str = ts.isoformat() if hasattr(ts, 'isoformat') else str(ts)
-
                 formatted.append({
                     "usuario": c.get("usuario"),
                     "pregunta": c.get("pregunta"),
@@ -133,7 +123,6 @@ def register_routes(app):
                     "polaridad": c.get("polaridad"),
                     "timestamp": ts_str
                 })
-
             return jsonify(formatted)
         except Exception as e:
             return jsonify({"error": f"Error getting comments: {str(e)}"}), 500
@@ -157,12 +146,9 @@ def register_routes(app):
     @app.route('/api/delete_user/<email>', methods=['DELETE'])
     def delete_user(email):
         try:
-            # 🔥 Asegúrate de tener estas funciones en db.py
             from .db import delete_user_by_email, delete_comments_by_email
-
             delete_user_by_email(email)
             delete_comments_by_email(email)
-
             return jsonify({"message": f"Usuario {email} y sus comentarios fueron eliminados."}), 200
         except Exception as e:
             return jsonify({"error": f"Error al eliminar usuario: {str(e)}"}), 500
@@ -177,16 +163,36 @@ def register_routes(app):
             return jsonify({"error": "User not found"}), 404
         return jsonify({"message": "User exists"}), 200
 
-    # === RENDER HTML DE AGRADECIMIENTO ===
-    @app.route('/agradecimiento')
-    def agradecimiento():
-        return render_template("agradecimiento.html")
+    @app.route('/api/send_confirmation_email', methods=['POST'])
+    def send_confirmation_email():
+        email = request.json.get('email')
+        if not email:
+            return jsonify({"error": "Email is required"}), 400
+        try:
+            send_email(email)
+            return jsonify({"message": "Confirmation email sent successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": f"Error sending email: {str(e)}"}), 500
 
-    # === ENVÍO DE EMAIL ===
+    @app.route('/api/generate_report', methods=['POST', 'OPTIONS'])
+    def generate_report():
+        if request.method == 'OPTIONS':
+            return '', 200
+        comentarios = request.get_json().get("comentarios", [])
+        if not comentarios:
+            return jsonify({"error": "No se enviaron comentarios"}), 400
+
+        buffer = generate_comments_report(comentarios)
+        return send_file(
+            buffer,
+            mimetype='application/pdf',
+            as_attachment=True,
+            download_name='reporte_comentarios.pdf'
+        )
+
     def send_email(recipient_email):
         sender_email = "aliciamodas.diha@gmail.com"
         sender_password = "kdsczissnqdgbpwn"
-
         subject = "¡Gracias por tu confianza en Alicia Modas!"
         body = (
             "Hola,\n\n"
@@ -207,32 +213,3 @@ def register_routes(app):
         except Exception as e:
             print(f"Error enviando email: {e}")
             raise e
-
-    @app.route('/api/send_confirmation_email', methods=['POST'])
-    def send_confirmation_email():
-        email = request.json.get('email')
-        if not email:
-            return jsonify({"error": "Email is required"}), 400
-        try:
-            send_email(email)
-            return jsonify({"message": "Confirmation email sent successfully"}), 200
-        except Exception as e:
-            return jsonify({"error": f"Error sending email: {str(e)}"}), 500
-
-    # === GENERAR REPORTE PDF ===
-    @app.route('/api/generate_report', methods=['POST', 'OPTIONS'])
-    def generate_report():
-        if request.method == 'OPTIONS':
-            return '', 200
-
-        comentarios = request.get_json().get("comentarios", [])
-        if not comentarios:
-            return jsonify({"error": "No se enviaron comentarios"}), 400
-
-        buffer = generate_comments_report(comentarios)
-        return send_file(
-            buffer,
-            mimetype='application/pdf',
-            as_attachment=True,
-            download_name='reporte_comentarios.pdf'
-        )
