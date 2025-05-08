@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from app import create_app
+from backend.app import create_app
 import os
 import time
 
