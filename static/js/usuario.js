@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const valid = this.userEmail && await validarUsuario(this.userEmail);
             if (!valid) {
                 localStorage.removeItem('user_email');
-                window.location.href = '/frontend/pages/main.html';
+                window.location.href = '/templates/main.html';
                 return;
             }
 
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!res.ok) throw new Error('Error en el análisis de sentimiento');
 
                 console.log("Sentimiento registrado correctamente.");
-                window.location.href = '/frontend/pages/agradecimiento.html';
+                window.location.href = '/templates/agradecimiento.html';
 
             } catch (error) {
                 console.error('Error al analizar sentimiento:', error);
