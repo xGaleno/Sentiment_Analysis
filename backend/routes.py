@@ -4,8 +4,8 @@ from .db import (
     add_user, get_user_by_email, get_all_users,
     add_comment, get_all_comments, clear_comments
 )
-from .services.sentiment_analysis import analyze_sentiment
-from .services.generate_report import generate_comments_report
+from .app.services.sentiment_analysis import analyze_sentiment
+from .app.services.generate_report import generate_comments_report
 
 import smtplib
 import threading
