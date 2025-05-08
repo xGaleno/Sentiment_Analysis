@@ -7,7 +7,7 @@ body {
     align-items: center;
     justify-content: center;
     font-family: 'Segoe UI', 'Roboto', sans-serif;
-    background: url('../Assets/Fondo_2.png') no-repeat center center fixed;
+    background: url('/static/Assets/Fondo_2.png') no-repeat center center fixed;
     background-size: cover;
     transition: all 0.3s ease-in-out;
 }
