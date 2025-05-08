@@ -12,7 +12,28 @@ import threading
 
 from email.mime.text import MIMEText
 from email.header import Header
+from flask import render_template
 
+def register_routes(app):
+    @app.route("/")
+    def main():
+        return render_template("main.html")
+
+    @app.route("/empresa_analisis")
+    def empresa_analisis():
+        return render_template("empresa_analisis.html")
+
+    @app.route("/empresa_login")
+    def empresa_login():
+        return render_template("empresa_login.html")
+
+    @app.route("/usuario")
+    def usuario():
+        return render_template("usuario.html")
+
+    @app.route("/agradecimiento")
+    def agradecimiento():
+        return render_template("agradecimiento.html")
 
 def register_routes(app):
 
