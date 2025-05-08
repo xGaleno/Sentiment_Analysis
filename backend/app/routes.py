@@ -5,7 +5,7 @@ from .db import (
     add_comment, get_all_comments, clear_comments
 )
 from .services.sentiment_analysis import analyze_sentiment
-from app.services.generate_report import generate_comments_report
+from .services.generate_report import generate_comments_report
 
 import smtplib
 import threading
