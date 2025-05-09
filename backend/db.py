@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 from google.cloud import firestore
+from google.oauth2 import service_account
 
 # Cargar variables de entorno
 load_dotenv()
@@ -15,9 +16,11 @@ def get_db():
         creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
         if not creds_path or not os.path.isfile(creds_path):
             raise FileNotFoundError(f"⚠️ Archivo de credenciales no encontrado: {creds_path}")
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
-        _firestore_client = firestore.Client()
+        
+        credentials = service_account.Credentials.from_service_account_file(creds_path)
+        _firestore_client = firestore.Client(credentials=credentials)
     return _firestore_client
+
 
 # === Funciones de usuarios ===
 
@@ -41,6 +44,7 @@ def get_all_users():
 def delete_user_by_email(email):
     db = get_db()
     db.collection('users').document(email).delete()
+
 
 # === Funciones de comentarios ===
 
