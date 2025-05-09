@@ -10,15 +10,26 @@ load_dotenv()
 _firestore_client = None
 
 def get_db():
-    """Inicializa y devuelve una instancia del cliente Firestore."""
+    """Inicializa y devuelve el cliente de Firestore, manejando credenciales faltantes."""
     global _firestore_client
-    if _firestore_client is None:
-        creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-        if not creds_path or not os.path.isfile(creds_path):
-            raise FileNotFoundError(f"⚠️ Archivo de credenciales no encontrado: {creds_path}")
-        
-        credentials = service_account.Credentials.from_service_account_file(creds_path)
-        _firestore_client = firestore.Client(credentials=credentials)
+
+    if _firestore_client is not None:
+        return _firestore_client
+
+    creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+
+    # Fallback si la variable no está definida (útil para Render)
+    if not creds_path:
+        fallback_path = os.path.join(os.path.dirname(__file__), "keys/firebase-credentials.json")
+        if os.path.isfile(fallback_path):
+            creds_path = fallback_path
+            print(f"⚠️ Variable de entorno no encontrada. Usando ruta fallback: {creds_path}")
+        else:
+            raise FileNotFoundError("❌ Archivo de credenciales no encontrado. Asegúrate de definir GOOGLE_APPLICATION_CREDENTIALS o colocar el JSON en backend/keys")
+
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
+    _firestore_client = firestore.Client()
+    print("✅ Cliente Firestore inicializado correctamente")
     return _firestore_client
 
 
