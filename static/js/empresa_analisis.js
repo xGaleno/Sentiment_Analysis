@@ -177,3 +177,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 10000);    
 
 });
+
+getUsers()
+  .then(users => {
+    console.log("✅ Usuarios cargados:", users);
+    renderUserCharts(users);
+    populateUserSelect(users);
+  })
+  .catch(error => console.error('❌ Error al obtener usuarios:', error));
