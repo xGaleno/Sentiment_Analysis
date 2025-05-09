@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const valid = this.userEmail && await validarUsuario(this.userEmail);
             if (!valid) {
                 localStorage.removeItem('user_email');
-                window.location.href = '/';  // ✅ Ruta Flask principal
+                window.location.href = '/usuario';
                 return;
             }
         

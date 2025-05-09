@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ====================================================================
     document.getElementById('logoutButton')?.addEventListener('click', () => {
         localStorage.clear();
-        window.location.href = '/frontend/pages/empresa_login.html';
+        window.location.href = '/empresa_login';
     });
 
     // ====================================================================
