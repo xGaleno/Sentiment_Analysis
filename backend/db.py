@@ -3,25 +3,20 @@ from datetime import datetime
 from dotenv import load_dotenv
 from google.cloud import firestore
 
-# Cargar variables de entorno desde .env (útil en local)
+# Cargar variables de entorno
 load_dotenv()
 
-# Inicialización diferida (lazy) del cliente Firestore
 _firestore_client = None
 
 def get_db():
+    """Inicializa y devuelve una instancia del cliente Firestore."""
     global _firestore_client
     if _firestore_client is None:
-        credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-
-        if not credentials_path or not os.path.exists(credentials_path):
-            raise RuntimeError(f"Credenciales de Firebase no encontradas: {credentials_path}")
-
-        # Asegura que se use la ruta relativa desde la raíz del proyecto
-        absolute_path = os.path.abspath(credentials_path)
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = absolute_path
+        creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        if not creds_path or not os.path.isfile(creds_path):
+            raise FileNotFoundError(f"⚠️ Archivo de credenciales no encontrado: {creds_path}")
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
         _firestore_client = firestore.Client()
-
     return _firestore_client
 
 # === Funciones de usuarios ===
