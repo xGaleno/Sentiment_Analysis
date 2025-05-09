@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+    const API_BASE_URL = window.API_BASE_URL || '/api';
 
     const isValidEmail = email =>
         /^[^@\s]+@(gmail\.com|outlook\.com|hotmail\.com|upc\.edu\.pe)$/.test(email);

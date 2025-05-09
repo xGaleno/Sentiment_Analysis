@@ -48,7 +48,7 @@ export function renderUsersTable(users, onRowClick) {
             if (!confirmDelete) return;
     
             try {
-                const res = await fetch(`http://localhost:5000/api/delete_user/${encodeURIComponent(email)}`, {
+                const res = await fetch(`/api/delete_user/${encodeURIComponent(email)}`, {
                     method: 'DELETE'
                 });
     
