@@ -137,36 +137,3 @@ body {
 .send-button:active {
     transform: scale(0.95);
 }
-
-/* === RESPONSIVE DESIGN === */
-@media (max-width: 768px) {
-    .header {
-        flex-wrap: wrap;
-        padding: 10px 15px;
-    }
-
-    .diha-text {
-        font-size: 18px;
-        margin-top: 5px;
-    }
-
-    .chat-window {
-        padding: 10px;
-    }
-
-    .chat-message {
-        font-size: 18px;
-        padding: 10px 14px;
-    }
-
-    .message-input {
-        font-size: 14px;
-        padding: 10px 12px;
-    }
-
-    .send-button {
-        width: 40px;
-        height: 40px;
-        font-size: 16px;
-    }
-}
