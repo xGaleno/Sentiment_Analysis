@@ -11,6 +11,8 @@ import smtplib
 import threading
 from email.mime.text import MIMEText
 from email.header import Header
+import traceback
+
 
 
 def register_routes(app):
