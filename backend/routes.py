@@ -125,6 +125,9 @@ def register_routes(app):
                 })
             return jsonify(formatted)
         except Exception as e:
+            # Agrega traza para identificar el error real
+            print("❌ Error en /api/comments:")
+            traceback.print_exc()
             return jsonify({"error": f"Error getting comments: {str(e)}"}), 500
 
     @app.route('/api/clear_comments', methods=['DELETE'])
