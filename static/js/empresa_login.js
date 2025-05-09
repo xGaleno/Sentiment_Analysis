@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 messageDiv.style.color = 'green';
 
                 setTimeout(() => {
-                    window.location.href = "/frontend/pages/empresa_analisis.html";
+                    window.location.href = "/empresa_analisis";
                 }, 1000);
             } else {
                 handleError("Error en la autenticación");
