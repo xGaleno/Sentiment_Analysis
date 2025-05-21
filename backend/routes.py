@@ -12,7 +12,7 @@ import threading
 from email.mime.text import MIMEText
 from email.header import Header
 import traceback
-
+import time
 
 
 def register_routes(app):
@@ -109,6 +109,8 @@ def register_routes(app):
     # === COMENTARIOS ===
     @app.route('/api/comments', methods=['GET'])
     def comments():
+        start = time.time()
+        print("📥 [API] /api/comments – inicio")
         try:
             comments = get_all_comments()
             formatted = []
@@ -125,9 +127,10 @@ def register_routes(app):
                     "polaridad": c.get("polaridad"),
                     "timestamp": ts_str
                 })
+            elapsed = time.time() - start
+            print(f"✅ [API] /api/comments – fin en {elapsed:.2f}s")
             return jsonify(formatted)
         except Exception as e:
-            # Agrega traza para identificar el error real
             print("❌ Error en /api/comments:")
             traceback.print_exc()
             return jsonify({"error": f"Error getting comments: {str(e)}"}), 500
@@ -143,9 +146,16 @@ def register_routes(app):
     # === USUARIOS ===
     @app.route('/api/users', methods=['GET'])
     def users():
+        start = time.time()
+        print("📥 [API] /api/users – inicio")
         try:
-            return jsonify(get_all_users())
+            users = get_all_users()
+            elapsed = time.time() - start
+            print(f"✅ [API] /api/users – fin en {elapsed:.2f}s (total {len(users)} usuarios)")
+            return jsonify(users)
         except Exception as e:
+            print("❌ [API] /api/users error:")
+            traceback.print_exc()
             return jsonify({"error": f"Error getting users: {str(e)}"}), 500
 
     @app.route('/api/delete_user/<email>', methods=['DELETE'])
