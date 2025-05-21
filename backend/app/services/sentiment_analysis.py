@@ -2,7 +2,7 @@ import os
 import requests
 import re
 
-API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyAeqdJSv2fxlM18pBzG-AKLVgpKTyoco3A")
+API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDzVyGvtw2qOhCzvOAzKvOCVPOC5s09bqY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
 
 def analyze_sentiment(text: str) -> str:
