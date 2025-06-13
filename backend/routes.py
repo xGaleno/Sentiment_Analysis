@@ -83,12 +83,17 @@ def register_routes(app):
             if not texto or not pregunta:
                 continue
 
-            sentimiento = analyze_sentiment(texto)
+            sentimiento = analyze_sentiment(texto, pregunta)
             if sentimiento == "Error":
                 sentimiento = "nulo"
                 polaridad = 0.0
             else:
-                polaridad = 0.5 if sentimiento == "positivo" else -0.5 if sentimiento == "negativo" else 0.0
+                if sentimiento == "positivo":
+                    polaridad = 0.5
+                elif sentimiento == "negativo":
+                    polaridad = -0.5
+                else:
+                    polaridad = 0.0
 
             add_comment(email, pregunta, texto, sentimiento, polaridad)
 
