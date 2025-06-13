@@ -7,23 +7,33 @@ GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.
 
 def analyze_sentiment(text: str) -> str:
     """
-    Analiza el sentimiento del comentario. Devuelve 'positivo', 'negativo', 'neutro' o 'nulo' si no tiene sentido.
+    Analiza el sentimiento del comentario. Devuelve:
+    - 'positivo'
+    - 'negativo'
+    - 'neutro' si hay mezcla clara de sentimientos
+    - 'nulo' si la respuesta no tiene sentido con la pregunta
     """
-    headers = { "Content-Type": "application/json" }
+    headers = {"Content-Type": "application/json"}
     contexto = (
         "Contexto: La empresa Alicia Modas es una PYME familiar ubicada en Mendoza, Argentina, "
         "dedicada a la venta de indumentaria femenina y accesorios de moda. Ofrece productos de "
         "fabricación propia y nacionales, destacándose por su atención personalizada y fuerte presencia en redes sociales."
     )
 
+    prompt = (
+        f"{contexto}\n"
+        f"Analiza el siguiente comentario del cliente y responde con una sola palabra entre las siguientes opciones:\n"
+        f"- positivo: si expresa satisfacción clara\n"
+        f"- negativo: si expresa una queja o disconformidad\n"
+        f"- neutro: si hay una mezcla de emociones positivas y negativas\n"
+        f"- nulo: si el comentario no tiene sentido o no está relacionado con la experiencia del cliente\n\n"
+        f"Comentario: \"{text}\"\n"
+        f"Respuesta:"
+    )
+
     payload = {
         "contents": [{
-            "parts": [{
-                "text": (
-                    f"{contexto} Analiza el sentimiento del siguiente comentario del cliente "
-                    f"y responde solo con una palabra (positivo, negativo o neutro): '{text}'"
-                )
-            }]
+            "parts": [{"text": prompt}]
         }]
     }
 
@@ -36,16 +46,14 @@ def analyze_sentiment(text: str) -> str:
             except (IndexError, KeyError, AttributeError):
                 return "nulo"
 
-            # Si el resultado es 'neutro', evaluamos si el texto tiene sentido
-            if result == "neutro":
-                palabras_validas = re.findall(r'\b[a-zA-ZáéíóúñÁÉÍÓÚÑ]{3,}\b', text)
-                if len(palabras_validas) == 0:
-                    return "nulo"
-
             if result in {"positivo", "negativo", "neutro"}:
+                # Verificación adicional de validez semántica para evitar que "hola" sea considerado neutro
+                palabras_validas = re.findall(r'\b[a-zA-ZáéíóúñÁÉÍÓÚÑ]{3,}\b', text)
+                if len(palabras_validas) < 3:  # requiere al menos 3 palabras sustanciales
+                    return "nulo"
                 return result
-            else:
-                return "nulo"  # Resultado inesperado
+
+            return "nulo"
 
         print(f"[ERROR {response.status_code}] {response.reason}")
         return "nulo"
