@@ -5,9 +5,13 @@ import re
 API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDzVyGvtw2qOhCzvOAzKvOCVPOC5s09bqY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
 
-def analyze_sentiment(text: str) -> str:
+def analyze_sentiment(text: str, question: str) -> str:
     """
-    Analiza el sentimiento del comentario. Devuelve 'positivo', 'negativo', 'neutro' o 'nulo' si no tiene sentido.
+    Analiza el sentimiento del comentario en relación con la pregunta recibida.
+    Devuelve 'positivo', 'negativo', 'neutro' o 'nulo' si la respuesta no
+    tiene sentido o no está relacionada con la pregunta. Las respuestas con
+    sentimientos encontrados o negativas con aspectos positivos se clasifican
+    como 'neutro'.
     """
     headers = { "Content-Type": "application/json" }
     contexto = (
@@ -20,8 +24,14 @@ def analyze_sentiment(text: str) -> str:
         "contents": [{
             "parts": [{
                 "text": (
-                    f"{contexto} Analiza el sentimiento del siguiente comentario del cliente "
-                    f"y responde solo con una palabra (positivo, negativo o neutro): '{text}'"
+                    f"{contexto} Se hizo la siguiente pregunta al cliente: '{question}'. "
+                    f"El cliente respondió: '{text}'. "
+                    "Analiza si la respuesta tiene sentido con la pregunta y "
+                    "clasifica el sentimiento como 'positivo', 'negativo' o 'neutro'. "
+                    "Si la respuesta combina sentimientos opuestos o es negativa con un aspecto positivo, "
+                    "considera el resultado como 'neutro'. "
+                    "Si la respuesta no es coherente con la pregunta o carece de sentido, "
+                    "responde solo con 'nulo'."
                 )
             }]
         }]
@@ -41,6 +51,9 @@ def analyze_sentiment(text: str) -> str:
                 palabras_validas = re.findall(r'\b[a-zA-ZáéíóúñÁÉÍÓÚÑ]{3,}\b', text)
                 if len(palabras_validas) == 0:
                     return "nulo"
+
+            if result in {"mixto", "negativo con aspecto positivo"}:
+                result = "neutro"
 
             if result in {"positivo", "negativo", "neutro"}:
                 return result
