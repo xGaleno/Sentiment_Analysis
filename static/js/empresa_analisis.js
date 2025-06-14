@@ -206,10 +206,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 });
 
-//getUsers()
-//  .then(users => {
-//    console.log("✅ Usuarios cargados:", users);
-//    renderUserCharts(users);
-//    populateUserSelect(users);
-//  })
-//  .catch(error => console.error('❌ Error al obtener usuarios:', error));
+getUsers()
+  .then(users => {
+    console.log("✅ Usuarios cargados:", users);
+       renderUserCharts(users);
+    populateUserSelect(users);
+  })
+  .catch(error => console.error('❌ Error al obtener usuarios:', error));
