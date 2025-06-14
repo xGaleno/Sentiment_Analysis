@@ -241,6 +241,17 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         c.showPage()
         current_y = height - margin
 
+    # Cantidad de correos registrados (en texto)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(margin, current_y, "Estadísticas de Contacto:")
+    current_y -= 15
+    c.setFont("Helvetica", 10)
+    # IMPORTANTE: Debes obtener el número real de correos registrados y pasarlo aquí.
+    # Por ahora, es un marcador de posición.
+    num_emails_registered = 0 # Reemplaza 0 con la cantidad real de correos registrados
+    c.drawString(margin, current_y, f"• Número de correos electrónicos registrados: {num_emails_registered} (Dato a proveer externamente)")
+    current_y -= 25
+
     # Cosas que puedan ser útiles pero en texto y no gráficos (Conclusiones y Recomendaciones)
     c.setFont("Helvetica-Bold", 12)
     c.drawString(margin, current_y, "Conclusiones y Recomendaciones Clave:")
@@ -322,6 +333,65 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         c.setStrokeColor(HexColor("#CCCCCC"))
         c.line(margin, current_y, width - margin, current_y)
         current_y -= 25
+
+    # --- Detalle tabular de comentarios ---
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margin, current_y, "Detalle de Comentarios")
+    current_y -= 20
+    c.setFont("Helvetica", 9)
+
+    headers = ["Fecha", "Usuario", "Pregunta", "Respuesta", "Sentimiento", "Polaridad"]
+    col_widths = [70, 70, 100, 150, 60, 50]
+
+    header_height = 18
+    c.setFillColor(lightgrey)
+    c.rect(margin, current_y - header_height, sum(col_widths), header_height, fill=1)
+    c.setFillColor(black)
+
+    header_y = current_y - 12
+    x_offset = margin
+    for i, header in enumerate(headers):
+        c.drawString(x_offset, header_y, header)
+        x_offset += col_widths[i]
+    current_y -= header_height + 5
+
+    row_height = 15
+
+    for cmt in comments:
+        if current_y < margin + row_height:
+            c.showPage()
+            current_y = height - margin
+            
+            c.setFillColor(lightgrey)
+            c.rect(margin, current_y - header_height, sum(col_widths), header_height, fill=1)
+            c.setFillColor(black)
+            header_y = current_y - 12
+            x_offset = margin
+            for i, header in enumerate(headers):
+                c.drawString(x_offset, header_y, header)
+                x_offset += col_widths[i]
+            current_y -= header_height + 5
+
+        data_row = [
+            cmt.get("timestamp", "")[:19],
+            cmt.get("usuario", "")[:15],
+            cmt.get("pregunta", ""),
+            cmt.get("respuesta", ""),
+            cmt.get("sentimiento", ""),
+            str(cmt.get("polaridad", ""))
+        ]
+
+        x_offset = margin
+        for i, value in enumerate(data_row):
+            if c.stringWidth(value, "Helvetica", 9) > col_widths[i] - 5:
+                while c.stringWidth(value + "...", "Helvetica", 9) > col_widths[i] - 5 and len(value) > 0:
+                    value = value[:-1]
+                if len(value) < len(data_row[i]):
+                    value += "..."
+            
+            c.drawString(x_offset, current_y - 10, value)
+            x_offset += col_widths[i]
+        current_y -= row_height
 
     c.save() # Llama al método save de NumberedCanvas, que añade los números de página
     buffer.seek(0)
