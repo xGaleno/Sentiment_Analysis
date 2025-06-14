@@ -205,14 +205,10 @@ def register_routes(app):
             as_attachment=True,
             download_name='reporte_comentarios.pdf'
         )
-    
-    @app.route('/api/correos_enviados', methods=['GET'])
-    def correos_enviados():
-        return jsonify(correos_enviados_log)
 
     def send_email(recipient_email):
         sender_email = "aliciamodas.diha@gmail.com"
-        sender_password = "kdsczissnqdgbpwn"
+        sender_password = "addt58Y0~nFA"
         subject = "¡Gracias por tu confianza en Alicia Modas!"
         body = (
             "Hola,\n\n"
@@ -247,4 +243,7 @@ def register_routes(app):
             })
             print(f"Error enviando email: {e}")
             raise e
-    
+        
+    @app.route('/api/correos_enviados', methods=['GET'])
+    def correos_enviados():
+        return jsonify(correos_enviados_log)
