@@ -7,6 +7,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit, ImageReader
 from reportlab.lib.colors import lightgrey, black, HexColor
+import traceback # Import traceback for more detailed error logging
 
 # Adjust the import path to backend.db
 try:
@@ -66,6 +67,7 @@ def get_summary_from_gemini(text: str) -> str:
             return "No se pudo generar un resumen automático."
     except Exception as e:
         print(f"❌ Error getting summary from Gemini: {e}")
+        traceback.print_exc() # Print full traceback for Gemini API errors
         return "No se pudo generar un resumen automático."
 
 # Custom canvas class to add page numbers on every page
@@ -111,7 +113,7 @@ def generate_comments_report(filtros: dict = None, charts: dict = None) -> io.By
     Arguments:
         filtros (dict, optional): A dictionary of filters applied to the
                                   comment set.
-        charts (dict, optional): A dictionary where keys are chart titles
+        charts (dict, opcional): A dictionary where keys are chart titles
                                  and values are base64 encoded image data (e.g., 'data:image/png;base64,...').
 
     Returns:
@@ -325,11 +327,20 @@ def generate_comments_report(filtros: dict = None, charts: dict = None) -> io.By
             current_y -= 15
 
             try:
-                if ',' in b64_data:
-                    image_data = base64.b64decode(b64_data.split(',')[1])
-                else:
-                    image_data = base64.b64decode(b64_data)
+                # Validate b64_data before decoding
+                if not isinstance(b64_data, str) or not (b64_data.startswith("data:image/") and ";base64," in b64_data) :
+                     print(f"⚠️ Invalid Base64 data format for chart '{title}'. Expected 'data:image/...;base64,...'")
+                     c.setFont("Helvetica", 10)
+                     c.setFillColor(black)
+                     c.drawString(margin, current_y, f"⚠️ Datos de gráfico inválidos para '{title}'.")
+                     current_y -= 20
+                     continue # Skip to the next chart
+
+                # Extract only the base64 part
+                image_base64_payload = b64_data.split(',')[1]
                 
+                # It's good practice to wrap base64decode in a try-except
+                image_data = base64.b64decode(image_base64_payload)
                 image = ImageReader(io.BytesIO(image_data))
                 
                 img_width, img_height = image.getSize()
@@ -351,7 +362,8 @@ def generate_comments_report(filtros: dict = None, charts: dict = None) -> io.By
             except Exception as e:
                 c.setFont("Helvetica", 10)
                 c.setFillColor(black)
-                c.drawString(margin, current_y, f"⚠️ Could not load chart: {title}: {e}")
+                c.drawString(margin, current_y, f"⚠️ Error al cargar el gráfico '{title}': {e}")
+                traceback.print_exc() # Print full traceback for image loading errors
                 current_y -= 20
 
             current_y -= 15
