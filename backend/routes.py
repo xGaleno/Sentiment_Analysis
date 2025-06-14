@@ -14,6 +14,7 @@ from email.header import Header
 import traceback
 import time
 
+correos_enviados_log = []
 
 def register_routes(app):
     # === RUTAS DE FRONTEND ===
@@ -225,6 +226,24 @@ def register_routes(app):
             with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
                 server.login(sender_email, sender_password)
                 server.sendmail(sender_email, recipient_email, msg.as_string())
+
+            # Agregar al log
+            correos_enviados_log.append({
+                "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "destinatario": recipient_email,
+                "asunto": subject,
+                "estado": "✅ Enviado"
+            })
         except Exception as e:
+            correos_enviados_log.append({
+                "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "destinatario": recipient_email,
+                "asunto": subject,
+                "estado": f"❌ Error: {str(e)}"
+            })
             print(f"Error enviando email: {e}")
             raise e
+        
+        @app.route('/api/correos_enviados', methods=['GET'])
+        def correos_enviados():
+            return jsonify(correos_enviados_log)

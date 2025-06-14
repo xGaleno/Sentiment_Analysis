@@ -176,6 +176,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateCharts(processed);
     }, 10000);    
 
+        // ====================================================================
+    // 📧 MOSTRAR LOG DE CORREOS ENVIADOS
+    // ====================================================================
+    const correoLogTable = document.getElementById('correoLogTable');
+    if (correoLogTable) {
+        fetch(`${API_BASE_URL}/correos_enviados`)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = correoLogTable.querySelector('tbody');
+                tbody.innerHTML = '';
+
+                data.forEach(log => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="padding: 6px;">${log.fecha}</td>
+                        <td style="padding: 6px;">${log.destinatario}</td>
+                        <td style="padding: 6px;">${log.asunto}</td>
+                        <td style="padding: 6px;">${log.estado}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(err => {
+                console.error("❌ Error cargando log de correos:", err);
+            });
+    }
+
+
 });
 
 getUsers()
