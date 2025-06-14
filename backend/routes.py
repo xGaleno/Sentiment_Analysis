@@ -208,7 +208,7 @@ def register_routes(app):
 
     def send_email(recipient_email):
         sender_email = "aliciamodas.diha@gmail.com"
-        sender_password = "addt58Y0~nFA"
+        sender_password = "cnma bvpj marz tvhh"
         subject = "¡Gracias por tu confianza en Alicia Modas!"
         body = (
             "Hola,\n\n"
