@@ -286,7 +286,6 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
     # Obtiene el número total de páginas después de que se ha generado todo el contenido
     total_pages = c.getPageNumber()
     for i in range(1, total_pages + 1):
-        c.setPageNumber(i) # Establece la página actual para dibujar el texto
         c.setFont("Helvetica", 9)
         c.setFillColor(black) # Asegura que el color de texto sea negro para el número de página
         # Dibuja el número de página centrado en el pie de página
