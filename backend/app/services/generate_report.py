@@ -174,7 +174,9 @@ def generate_comments_report(filtros: dict = None, charts: dict = None) -> io.By
     current_y -= 12
     c.drawString(margin, current_y, f"Total de comentarios procesados: {len(comments)}")
     current_y -= 12
-    if filtros:
+    
+    # === FIX: Validate if filters is a dictionary before iterating ===
+    if filtros and isinstance(filtros, dict):
         filter_text_parts = []
         for k, v in filtros.items():
             if isinstance(v, list):
@@ -183,6 +185,7 @@ def generate_comments_report(filtros: dict = None, charts: dict = None) -> io.By
                 filter_text_parts.append(f"{k}: {v}")
         c.drawString(margin, current_y, f"Filtros aplicados: {', '.join(filter_text_parts)}")
         current_y -= 15
+    # ================================================================
 
     # Section divider line after header
     c.setStrokeColor(HexColor("#CCCCCC")) # Lighter gray for the line
