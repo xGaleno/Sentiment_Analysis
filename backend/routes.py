@@ -244,6 +244,6 @@ def register_routes(app):
             print(f"Error enviando email: {e}")
             raise e
         
-        @app.route('/api/correos_enviados', methods=['GET'])
-        def correos_enviados():
-            return jsonify(correos_enviados_log)
+    @app.route('/api/correos_enviados', methods=['GET'])
+    def correos_enviados():
+        return jsonify(correos_enviados_log)
