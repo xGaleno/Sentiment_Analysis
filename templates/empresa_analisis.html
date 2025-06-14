@@ -114,5 +114,38 @@
     ===================================================== -->
     <script type="module" src="{{ url_for('static', filename='js/charts.js') }}"></script>
     <script type="module" src="{{ url_for('static', filename='js/empresa_analisis.js') }}"></script>
+
+    <!-- ====================================================
+         MODULO DE ENVIOS DE CORREO
+    ===================================================== -->
+
+    <section class="charts-row">
+        <div class="chart-container single-chart">
+            <h2>📧 Log de Correos Enviados</h2>
+            <table id="correoLogTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">Fecha</th>
+                        <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">Destinatario</th>
+                        <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">Asunto</th>
+                        <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Estos datos se cargarán dinámicamente desde el backend -->
+                    {% for correo in correos_enviados %}
+                    <tr>
+                        <td style="padding: 6px;">{{ correo.fecha }}</td>
+                        <td style="padding: 6px;">{{ correo.destinatario }}</td>
+                        <td style="padding: 6px;">{{ correo.asunto }}</td>
+                        <td style="padding: 6px;">{{ correo.estado }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p style="margin-top: 10px;">Este log muestra los correos enviados automáticamente por el sistema como respuesta a los formularios de opinión.</p>
+        </div>
+    </section>
+
 </body>
 </html>
