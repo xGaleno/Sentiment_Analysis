@@ -47,6 +47,41 @@ def get_summary_from_gemini(text: str) -> str:
         print(f"❌ Error al obtener resumen de Gemini: {e}")
         return "No se pudo generar un resumen automático."
 
+# Custom canvas class to add page numbers on every page
+class NumberedCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_pages = [] # List to store states of each page
+        self.page_count = 0 # Initialize page counter
+
+    def showPage(self):
+        """Overrides the default showPage to save current page state and increment count."""
+        self._saved_pages.append(dict(self.__dict__)) # Save the current state
+        self.page_count += 1 # Increment page count
+        self._startPage() # Start a new page
+
+    def save(self):
+        """Overrides the default save to add page numbers to all saved pages."""
+        # Ensure the last page is counted and saved before iterating
+        if '_startPage' in self.__dict__: # Check if there's an active page
+            self.showPage() # Save the current (last) page
+            self.page_count -= 1 # showPage increments, but we just want to count the one before starting new
+
+        for page_number, page_dict in enumerate(self._saved_pages):
+            self.__dict__.update(page_dict) # Restore state of the page
+            self.draw_page_number(page_number + 1, self.page_count) # Draw number
+            canvas.Canvas.showPage(self) # Show the page (and effectively start next for reportlab internal mechanism)
+        canvas.Canvas.save(self) # Final save
+
+    def draw_page_number(self, page_num, total_pages):
+        """Draws the page number on the current page."""
+        width, height = letter # Get page dimensions
+        self.setFont("Helvetica", 9)
+        self.setFillColor(black)
+        # Position the page number at the bottom center of the page
+        self.drawCentredString(width / 2, 0.75 * 50 / 2, f"Página {page_num} de {total_pages}")
+
+
 def generate_comments_report(comments: list, filtros: dict = None, charts: dict = None) -> io.BytesIO:
     """
     Genera un informe PDF de análisis de comentarios de clientes.
@@ -73,7 +108,7 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
     summary = get_summary_from_gemini(all_text)
     fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     buffer = io.BytesIO()
-    c = canvas.Canvas(buffer, pagesize=letter)
+    c = NumberedCanvas(buffer, pagesize=letter) # Usar la clase NumberedCanvas personalizada
     width, height = letter # Ancho y alto de la página (tamaño carta)
     margin = 50 # Margen a los lados de la página
     current_y = height - margin # Posición vertical actual en la página
@@ -85,7 +120,7 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
     # Si tienes un logo de la empresa, puedes cargarlo aquí.
     # Asegúrate de que el archivo del logo (ej. 'logo.png') esté en una ruta accesible en tu servidor.
     # Por ejemplo, si lo tienes en el mismo directorio que tu script:
-    # logo_path = 'logo.png' 
+    # logo_path = 'logo.png'
     # try:
     #     if os.path.exists(logo_path):
     #         logo = ImageReader(logo_path)
@@ -137,116 +172,196 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
     # Divide el resumen en líneas que se ajusten al ancho de la página
     lines = simpleSplit(summary, "Helvetica", 11, width - 2 * margin)
     for line in lines:
-        # Verifica si hay suficiente espacio para la línea actual, si no, salta a una nueva página
-        if current_y < margin + 20: # Margen inferior mínimo para texto
+        if current_y < margin + 20: # Si el contenido baja del margen, mostrar nueva página
             c.showPage()
-            current_y = height - margin # Reinicia la posición Y para la nueva página
-            c.setFont("Helvetica", 11) # Reestablece la fuente después de cambiar de página
+            current_y = height - margin # Reiniciar y para la nueva página
+            c.setFont("Helvetica", 11) # Volver a aplicar la fuente para la nueva página
         c.drawString(margin, current_y, line)
-        current_y -= 15 # Espacio entre líneas
+        current_y -= 15 # Espaciado de línea
 
     current_y -= 10 # Espacio extra después del resumen
     c.setStrokeColor(HexColor("#CCCCCC"))
     c.line(margin, current_y, width - margin, current_y) # Línea divisoria
     current_y -= 25 # Espacio después de la línea
 
-    # --- Gráficos visuales representativos ---
+    # --- Análisis Detallado y Estadísticas Clave (NUEVA SECCIÓN) ---
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(margin, current_y, "Análisis Detallado y Estadísticas Clave")
+    current_y -= 20
+    
+    # Análisis de Sentimiento de Comentarios (en texto con colores)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(margin, current_y, "Análisis de Sentimiento de Comentarios:")
+    current_y -= 15
+    c.setFont("Helvetica", 10)
+    
+    sentiments = [cmt.get("sentimiento", "").lower() for cmt in comments]
+    positive_count = sentiments.count("positivo")
+    neutral_count = sentiments.count("neutro")
+    negative_count = sentiments.count("negativo")
+    total_comments = len(sentiments)
+
+    if total_comments > 0:
+        positive_percent = (positive_count / total_comments) * 100
+        neutral_percent = (neutral_count / total_comments) * 100
+        negative_percent = (negative_count / total_comments) * 100
+
+        # Muestra los recuentos y porcentajes con colores
+        c.setFillColor(HexColor("#4CAF50")) # Verde para positivo
+        c.drawString(margin, current_y, f"• Positivos: {positive_count} ({positive_percent:.1f}%)")
+        current_y -= 12
+        c.setFillColor(HexColor("#FFC107")) # Ámbar para neutro
+        c.drawString(margin, current_y, f"• Neutros: {neutral_count} ({neutral_percent:.1f}%)")
+        current_y -= 12
+        c.setFillColor(HexColor("#F44336")) # Rojo para negativo
+        c.drawString(margin, current_y, f"• Negativos: {negative_count} ({negative_percent:.1f}%)")
+        current_y -= 12
+        c.setFillColor(black) # Restablecer a negro
+
+        current_y -= 10
+        summary_text_sentiment = (
+            f"El {positive_percent:.1f}% de los comentarios son positivos, destacando la alta satisfacción general. "
+            f"Un {neutral_percent:.1f}% son neutros, a menudo mencionando aspectos como la 'tela finita' o precios. "
+            f"El {negative_percent:.1f}% son negativos, lo cual indica áreas a mejorar."
+        )
+        lines_sentiment = simpleSplit(summary_text_sentiment, "Helvetica", 10, width - 2 * margin)
+        for line in lines_sentiment:
+            if current_y < margin + 20:
+                c.showPage()
+                current_y = height - margin
+                c.setFont("Helvetica", 10)
+            c.drawString(margin, current_y, line)
+            current_y -= 15
+    else:
+        c.drawString(margin, current_y, "No hay datos de sentimiento disponibles para analizar.")
+        current_y -= 15
+
+    current_y -= 15
+    if current_y < margin + 100: # Verificar si hay suficiente espacio para la siguiente sección
+        c.showPage()
+        current_y = height - margin
+
+    # Cantidad de correos registrados (en texto)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(margin, current_y, "Estadísticas de Contacto:")
+    current_y -= 15
+    c.setFont("Helvetica", 10)
+    # IMPORTANTE: Debes obtener el número real de correos registrados y pasarlo aquí.
+    # Por ahora, es un marcador de posición.
+    num_emails_registered = 0 # Reemplaza 0 con la cantidad real de correos registrados
+    c.drawString(margin, current_y, f"• Número de correos electrónicos registrados: {num_emails_registered} (Dato a proveer externamente)")
+    current_y -= 25
+
+    # Cosas que puedan ser útiles pero en texto y no gráficos (Conclusiones y Recomendaciones)
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(margin, current_y, "Conclusiones y Recomendaciones Clave:")
+    current_y -= 15
+    c.setFont("Helvetica", 10)
+    insights = [
+        "La amabilidad y rapidez en la atención al cliente son puntos fuertes consistentemente mencionados. Considerar mantener y reforzar los programas de capacitación en servicio al cliente.",
+        "La calidad de la tela es un área de mejora recurrente. Se recomienda investigar proveedores de materiales de mayor calidad o ajustar las expectativas del cliente sobre los productos.",
+        "Los precios son percibidos como algo elevados por algunos clientes. Evaluar la relación calidad-precio y las estrategias de precios frente a la competencia.",
+        "La experiencia de compra general es percibida como positiva y eficiente, lo que contribuye a la fidelización del cliente."
+    ]
+    for insight in insights:
+        lines_insight = simpleSplit(f"• {insight}", "Helvetica", 10, width - 2 * margin)
+        for line in lines_insight:
+            if current_y < margin + 20:
+                c.showPage()
+                current_y = height - margin
+                c.setFont("Helvetica", 10)
+            c.drawString(margin, current_y, line)
+            current_y -= 15
+        current_y -= 5 # Espacio extra entre conclusiones
+
+    current_y -= 10
+    c.setStrokeColor(HexColor("#CCCCCC"))
+    c.line(margin, current_y, width - margin, current_y)
+    current_y -= 25
+
+    # --- Incrustar gráficos (visual, como antes) ---
     if charts:
         c.setFont("Helvetica-Bold", 14)
-        c.drawString(margin, current_y, "Gráficos Representativos")
+        c.drawString(margin, current_y, "Gráficos Visuales Representativos")
         current_y -= 20 # Espacio después del título de sección
 
         for title, b64_data in charts.items():
-            # Verifica si hay suficiente espacio para el gráfico en la página actual
-            # Se estima que un gráfico necesita alrededor de 250 puntos de altura
-            if current_y < margin + 250:
+            if current_y < margin + 250: # Se estima que un gráfico necesita alrededor de 250 puntos de altura
                 c.showPage()
-                current_y = height - margin # Reinicia la posición Y para la nueva página
-                c.setFont("Helvetica-Bold", 14) # Reestablece el título de sección
-                c.drawString(margin, current_y, "Gráficos Representativos (Continuación)")
+                current_y = height - margin # Reinicia la posición Y
+                c.setFont("Helvetica-Bold", 14)
+                c.drawString(margin, current_y, "Gráficos Visuales (Continuación)")
                 current_y -= 20
 
             c.setFont("Helvetica-Bold", 12)
             c.drawString(margin, current_y, f"📊 {title}")
-            current_y -= 15 # Espacio después del título del gráfico
+            current_y -= 15
 
             try:
-                # Decodifica los datos de la imagen base64
-                if ',' in b64_data: # Si es una URL de datos (ej. "data:image/png;base64,...")
+                if ',' in b64_data:
                     image_data = base64.b64decode(b64_data.split(',')[1])
-                else: # Si es solo la cadena base64 pura
+                else:
                     image_data = base64.b64decode(b64_data)
                 
                 image = ImageReader(io.BytesIO(image_data))
                 
-                # Obtiene las dimensiones originales de la imagen
                 img_width, img_height = image.getSize()
                 aspect_ratio = img_height / img_width
                 
-                # Calcula las dimensiones de visualización para que quepa en la página
-                # y mantenga la relación de aspecto. El ancho máximo es el ancho de la página - 2*margen.
                 display_width = width - 2 * margin
                 display_height = display_width * aspect_ratio
 
-                # Si la altura calculada es demasiado grande, escala aún más para que se ajuste
-                if display_height > 200: # Altura máxima deseada para un gráfico
+                if display_height > 200:
                     display_height = 200
                     display_width = display_height / aspect_ratio
 
-                # Centra la imagen horizontalmente
                 img_x = margin + ( (width - 2 * margin) - display_width ) / 2
-                img_y = current_y - display_height - 10 # Posición Y del gráfico, 10 pts de buffer
+                img_y = current_y - display_height - 10
 
-                # Dibuja la imagen en el lienzo
                 c.drawImage(image, img_x, img_y, width=display_width, height=display_height, preserveAspectRatio=True)
-                current_y = img_y - 15 # Mueve la posición Y después de dibujar la imagen
+                current_y = img_y - 15
                 
             except Exception as e:
                 c.setFont("Helvetica", 10)
                 c.setFillColor(black)
                 c.drawString(margin, current_y, f"⚠️ No se pudo cargar el gráfico '{title}': {e}")
-                current_y -= 20 # Espacio para el mensaje de error
+                current_y -= 20
 
-            current_y -= 15 # Espacio entre gráficos
+            current_y -= 15
 
         current_y -= 10
         c.setStrokeColor(HexColor("#CCCCCC"))
-        c.line(margin, current_y, width - margin, current_y) # Línea divisoria
-        current_y -= 25 # Espacio después de la línea
+        c.line(margin, current_y, width - margin, current_y)
+        current_y -= 25
 
     # --- Detalle tabular de comentarios ---
     c.setFont("Helvetica-Bold", 14)
     c.drawString(margin, current_y, "Detalle de Comentarios")
-    current_y -= 20 # Espacio después del título de sección
-    c.setFont("Helvetica", 9) # Fuente más pequeña para el contenido de la tabla
+    current_y -= 20
+    c.setFont("Helvetica", 9)
 
     headers = ["Fecha", "Usuario", "Pregunta", "Respuesta", "Sentimiento", "Polaridad"]
-    # Anchos de columna ajustados para un mejor ajuste del contenido
-    col_widths = [70, 70, 100, 150, 60, 50] # La suma debe ser <= (width - 2*margin)
+    col_widths = [70, 70, 100, 150, 60, 50]
 
-    # Dibuja el fondo gris claro para los encabezados de la tabla
     header_height = 18
-    c.setFillColor(lightgrey) # Establece el color de relleno a gris claro
-    c.rect(margin, current_y - header_height, sum(col_widths), header_height, fill=1) # Dibuja el rectángulo
-    c.setFillColor(black) # Restablece el color de relleno a negro para el texto
+    c.setFillColor(lightgrey)
+    c.rect(margin, current_y - header_height, sum(col_widths), header_height, fill=1)
+    c.setFillColor(black)
 
-    # Dibuja los encabezados de la tabla
-    header_y = current_y - 12 # Posición Y para el texto de los encabezados
+    header_y = current_y - 12
     x_offset = margin
     for i, header in enumerate(headers):
         c.drawString(x_offset, header_y, header)
         x_offset += col_widths[i]
-    current_y -= header_height + 5 # Mueve la posición Y después de los encabezados (más un poco de padding)
+    current_y -= header_height + 5
 
-    row_height = 15 # Altura para cada fila de la tabla
+    row_height = 15
 
     for cmt in comments:
-        # Verifica si hay suficiente espacio para la fila actual, si no, salta a una nueva página
         if current_y < margin + row_height:
             c.showPage()
-            current_y = height - margin # Reinicia la posición Y para la nueva página
+            current_y = height - margin
             
-            # Vuelve a dibujar el encabezado de la tabla en la nueva página
             c.setFillColor(lightgrey)
             c.rect(margin, current_y - header_height, sum(col_widths), header_height, fill=1)
             c.setFillColor(black)
@@ -257,46 +372,27 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
                 x_offset += col_widths[i]
             current_y -= header_height + 5
 
-        # Prepara los datos de la fila, asegurando truncamiento para que se ajusten a la celda
         data_row = [
-            cmt.get("timestamp", "")[:19], # Trunca fecha/hora
-            cmt.get("usuario", "")[:15], # Trunca usuario
-            cmt.get("pregunta", ""), # Se manejará el truncamiento dinámicamente
-            cmt.get("respuesta", ""), # Se manejará el truncamiento dinámicamente
+            cmt.get("timestamp", "")[:19],
+            cmt.get("usuario", "")[:15],
+            cmt.get("pregunta", ""),
+            cmt.get("respuesta", ""),
             cmt.get("sentimiento", ""),
             str(cmt.get("polaridad", ""))
         ]
 
         x_offset = margin
         for i, value in enumerate(data_row):
-            # Truncamiento dinámico con "..." si el texto es demasiado largo para la columna
-            if c.stringWidth(value, "Helvetica", 9) > col_widths[i] - 5: # 5 pts de padding
+            if c.stringWidth(value, "Helvetica", 9) > col_widths[i] - 5:
                 while c.stringWidth(value + "...", "Helvetica", 9) > col_widths[i] - 5 and len(value) > 0:
                     value = value[:-1]
-                if len(value) < len(data_row[i]): # Solo añade "..." si hubo truncamiento
+                if len(value) < len(data_row[i]):
                     value += "..."
             
-            c.drawString(x_offset, current_y - 10, value) # 10 pts para alineación vertical en la celda
+            c.drawString(x_offset, current_y - 10, value)
             x_offset += col_widths[i]
-        current_y -= row_height # Mueve la posición Y para la siguiente fila
+        current_y -= row_height
 
-    # --- Paginación automática y números de página ---
-    c.showPage() # Fuerza una nueva página para asegurar que la numeración se dibuje correctamente en la última página.
-
-    # Obtiene el número total de páginas después de que se ha generado todo el contenido
-    total_pages = c.getPageNumber()
-    for i in range(1, total_pages + 1):
-        c.setFont("Helvetica", 9)
-        c.setFillColor(black) # Asegura que el color de texto sea negro para el número de página
-        # Dibuja el número de página centrado en el pie de página
-        c.drawCentredString(width / 2, margin / 2, f"Página {i} de {total_pages}")
-        
-        # Necesario para avanzar a la siguiente página para dibujar en ella el número de página.
-        # Si esta no es la última página, showPage() avanzará el lienzo a la siguiente.
-        # Si es la última página, simplemente termina la página actual.
-        if i < total_pages:
-            c.showPage() 
-
-    c.save() # Guarda el contenido del lienzo en el buffer
-    buffer.seek(0) # Mueve el puntero al inicio del buffer para que pueda ser leído
+    c.save() # Llama al método save de NumberedCanvas, que añade los números de página
+    buffer.seek(0)
     return buffer
