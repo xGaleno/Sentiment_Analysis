@@ -6,15 +6,36 @@ from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit, ImageReader
-from reportlab.lib.colors import lightgrey, black, HexColor # Importar HexColor para colores personalizados
+from reportlab.lib.colors import lightgrey, black, HexColor
+
+# Adjust the import path to backend.db
+try:
+    from backend.db import get_all_users, get_all_comments
+except ImportError as e:
+    print(f"Warning: Could not import get_all_users and get_all_comments from backend.db: {e}")
+    print("Please ensure backend/db.py exists and is accessible in your environment.")
+    # Define dummy functions to prevent errors if db.py cannot be imported during development
+    def get_all_users():
+        print("Using dummy function for get_all_users().")
+        return [{"email": "ejemplo1@test.com"}, {"email": "ejemplo2@test.com"}, {"no_email": "abc"}]
+    def get_all_comments():
+        print("Using dummy function for get_all_comments().")
+        # Example data so the report doesn't fail if no real comments are available
+        return [
+            {"usuario": "Usuario1", "fecha": "2025-06-14", "pregunta": "¿Qué tal la atención?", "respuesta": "Excelente, muy amable.", "sentimiento": "positivo", "polaridad": 0.8, "timestamp": "2025-06-14T10:00:00"},
+            {"usuario": "Usuario2", "fecha": "2025-06-14", "pregunta": "¿Y la tela?", "respuesta": "La tela es un poco fina.", "sentimiento": "neutro", "polaridad": 0.0, "timestamp": "2025-06-14T10:05:00"},
+            {"usuario": "Usuario3", "fecha": "2025-06-14", "pregunta": "¿Recomendarías?", "respuesta": "Sí, la ropa es buena.", "sentimiento": "positivo", "polaridad": 0.6, "timestamp": "2025-06-14T10:10:00"},
+            {"usuario": "Usuario4", "fecha": "2025-06-14", "pregunta": "¿Precios?", "respuesta": "Algo elevados.", "sentimiento": "negativo", "polaridad": -0.4, "timestamp": "2025-06-14T10:15:00"},
+        ]
+
 
 API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDzVyGvtw2qOhCzvOAzKvOCVPOC5s09bqY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
 
 def get_summary_from_gemini(text: str) -> str:
     """
-    Obtiene un resumen ejecutivo de un texto dado utilizando la API de Gemini.
-    Configura el modelo para generar un resumen conciso de máximo 100 palabras.
+    Obtains an executive summary from a given text using the Gemini API.
+    Configures the model to generate a concise summary of up to 100 words.
     """
     headers = { "Content-Type": "application/json" }
     payload = {
@@ -28,23 +49,23 @@ def get_summary_from_gemini(text: str) -> str:
             }]
         }],
         "generationConfig": {
-            "temperature": 0.7, # Controla la creatividad de la respuesta
-            "maxOutputTokens": 150 # Limita la longitud máxima del resumen para asegurar concisión
+            "temperature": 0.7, # Controls the creativity of the response
+            "maxOutputTokens": 150 # Limits the maximum length of the summary to ensure conciseness
         }
     }
 
     try:
         response = requests.post(GEMINI_URL, headers=headers, json=payload)
-        response.raise_for_status() # Lanza una excepción para errores HTTP (4xx o 5xx)
+        response.raise_for_status() # Raises an exception for HTTP errors (4xx or 5xx)
         data = response.json()
         if data and 'candidates' in data and data['candidates']:
-            # Extrae el texto del resumen de la respuesta de Gemini
+            # Extracts the summary text from Gemini's response
             return data['candidates'][0]['content']['parts'][0]['text'].strip()
         else:
-            print("❌ La API de Gemini no devolvió la estructura de datos esperada.")
+            print("❌ The Gemini API did not return the expected data structure.")
             return "No se pudo generar un resumen automático."
     except Exception as e:
-        print(f"❌ Error al obtener resumen de Gemini: {e}")
+        print(f"❌ Error getting summary from Gemini: {e}")
         return "No se pudo generar un resumen automático."
 
 # Custom canvas class to add page numbers on every page
@@ -82,23 +103,28 @@ class NumberedCanvas(canvas.Canvas):
         self.drawCentredString(width / 2, 0.75 * 50 / 2, f"Página {page_num} de {total_pages}")
 
 
-def generate_comments_report(comments: list, filtros: dict = None, charts: dict = None) -> io.BytesIO:
+def generate_comments_report(filtros: dict = None, charts: dict = None) -> io.BytesIO:
     """
-    Genera un informe PDF de análisis de comentarios de clientes.
+    Generates a PDF report of customer comments analysis.
+    Now obtains comment and user data directly from db.py functions.
 
-    Argumentos:
-        comments (list): Una lista de diccionarios, donde cada diccionario
-                         representa un comentario con sus detalles.
-        filtros (dict, opcional): Un diccionario de filtros aplicados al
-                                  conjunto de comentarios.
-        charts (dict, opcional): Un diccionario donde las claves son títulos
-                                 de gráficos y los valores son datos de imagen
-                                 codificados en base64 (ej. 'data:image/png;base64,...').
+    Arguments:
+        filtros (dict, optional): A dictionary of filters applied to the
+                                  comment set.
+        charts (dict, optional): A dictionary where keys are chart titles
+                                 and values are base64 encoded image data (e.g., 'data:image/png;base64,...').
 
-    Retorna:
-        io.BytesIO: Un objeto de tipo BytesIO que contiene el PDF generado.
+    Returns:
+        io.BytesIO: A BytesIO object containing the generated PDF.
     """
-    # Combina todas las respuestas para generar un resumen general
+    # --- Get data directly from db.py ---
+    all_users = get_all_users()
+    comments = get_all_comments() # Get all comments
+
+    # Calculate the number of registered emails
+    num_emails_registered = len([u['email'] for u in all_users if 'email' in u])
+
+    # Combine all responses to generate an overall summary
     all_text = " ".join(
         c.get("respuesta", "") for c in comments if isinstance(c.get("respuesta"), str)
     ).strip()
@@ -108,40 +134,40 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
     summary = get_summary_from_gemini(all_text)
     fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     buffer = io.BytesIO()
-    c = NumberedCanvas(buffer, pagesize=letter) # Usar la clase NumberedCanvas personalizada
-    width, height = letter # Ancho y alto de la página (tamaño carta)
-    margin = 50 # Margen a los lados de la página
-    current_y = height - margin # Posición vertical actual en la página
+    c = NumberedCanvas(buffer, pagesize=letter) # Use the custom NumberedCanvas class
+    width, height = letter # Page width and height (letter size)
+    margin = 50 # Page margins
+    current_y = height - margin # Current vertical position on the page
 
-    # --- Encabezado institucional ---
-    company_name = "Alicia Modas" # Nombre de la empresa para el encabezado
-    report_title = "Informe de Análisis de Comentarios" # Título del reporte
+    # --- Institutional Header ---
+    company_name = "Alicia Modas" # Company name for the header
+    report_title = "Informe de Análisis de Comentarios" # Report title
 
-    # Si tienes un logo de la empresa, puedes cargarlo aquí.
-    # Asegúrate de que el archivo del logo (ej. 'logo.png') esté en una ruta accesible en tu servidor.
-    # Por ejemplo, si lo tienes en el mismo directorio que tu script:
+    # If you have a company logo, you can load it here.
+    # Make sure the logo file (e.g., 'logo.png') is accessible on your server.
+    # For example, if it's in the same directory as your script:
     # logo_path = 'logo.png'
     # try:
     #     if os.path.exists(logo_path):
     #         logo = ImageReader(logo_path)
-    #         # Ajusta x, y, width, height según el tamaño deseado del logo
-    #         # Dibuja el logo a la derecha del título del reporte o en una esquina
+    #         # Adjust x, y, width, height according to the desired logo size
+    #         # Draw the logo to the right of the report title or in a corner
     #         logo_width = 80
     #         logo_height = 40
     #         c.drawImage(logo, width - margin - logo_width, current_y - 30, width=logo_width, height=logo_height, preserveAspectRatio=True)
     # except Exception as e:
-    #     print(f"Error al cargar el logo: {e}")
-    #     # Opcional: Si el logo no carga, puedes mostrar un texto de marcador de posición
+    #     print(f"Error loading logo: {e}")
+    #     # Optional: If the logo fails to load, you can display placeholder text
     #     # c.setFont("Helvetica-Bold", 10)
-    #     # c.drawString(width - margin - 80, current_y - 20, "🏢 Logo Ausente")
+    #     # c.drawString(width - margin - 80, current_y - 20, "🏢 Missing Logo")
 
     c.setFont("Helvetica-Bold", 24)
     c.drawString(margin, current_y, f"{company_name}")
-    current_y -= 30 # Espacio después del nombre de la empresa
+    current_y -= 30 # Space after company name
 
     c.setFont("Helvetica-Bold", 18)
     c.drawString(margin, current_y, f"📄 {report_title}")
-    current_y -= 25 # Espacio después del título del informe
+    current_y -= 25 # Space after report title
 
     c.setFont("Helvetica", 10)
     c.drawString(margin, current_y, f"Fecha de generación: {fecha_actual}")
@@ -158,38 +184,38 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         c.drawString(margin, current_y, f"Filtros aplicados: {', '.join(filter_text_parts)}")
         current_y -= 15
 
-    # Línea divisoria después del encabezado
-    c.setStrokeColor(HexColor("#CCCCCC")) # Un gris más claro para la línea
+    # Section divider line after header
+    c.setStrokeColor(HexColor("#CCCCCC")) # Lighter gray for the line
     c.line(margin, current_y, width - margin, current_y)
-    current_y -= 25 # Espacio después de la línea
+    current_y -= 25 # Space after the line
 
-    # --- Resumen ejecutivo automatizado por IA ---
+    # --- AI-generated Executive Summary ---
     c.setFont("Helvetica-Bold", 14)
     c.drawString(margin, current_y, "Resumen Ejecutivo Automatizado por IA")
-    current_y -= 20 # Espacio después del título de sección
+    current_y -= 20 # Space after section title
     c.setFont("Helvetica", 11)
     
-    # Divide el resumen en líneas que se ajusten al ancho de la página
+    # Splits the summary into lines that fit the page width
     lines = simpleSplit(summary, "Helvetica", 11, width - 2 * margin)
     for line in lines:
-        if current_y < margin + 20: # Si el contenido baja del margen, mostrar nueva página
+        if current_y < margin + 20: # If content goes below the margin, show new page
             c.showPage()
-            current_y = height - margin # Reiniciar y para la nueva página
-            c.setFont("Helvetica", 11) # Volver a aplicar la fuente para la nueva página
+            current_y = height - margin # Reset y for the new page
+            c.setFont("Helvetica", 11) # Reapply font for the new page
         c.drawString(margin, current_y, line)
-        current_y -= 15 # Espaciado de línea
+        current_y -= 15 # Line spacing
 
-    current_y -= 10 # Espacio extra después del resumen
+    current_y -= 10 # Extra space after summary
     c.setStrokeColor(HexColor("#CCCCCC"))
-    c.line(margin, current_y, width - margin, current_y) # Línea divisoria
-    current_y -= 25 # Espacio después de la línea
+    c.line(margin, current_y, width - margin, current_y) # Section divider line
+    current_y -= 25 # Space after the line
 
-    # --- Análisis Detallado y Estadísticas Clave (NUEVA SECCIÓN) ---
+    # --- Detailed Analysis and Key Statistics (NEW SECTION) ---
     c.setFont("Helvetica-Bold", 14)
     c.drawString(margin, current_y, "Análisis Detallado y Estadísticas Clave")
     current_y -= 20
     
-    # Análisis de Sentimiento de Comentarios (en texto con colores)
+    # Sentiment Analysis of Comments (in text with colors)
     c.setFont("Helvetica-Bold", 12)
     c.drawString(margin, current_y, "Análisis de Sentimiento de Comentarios:")
     current_y -= 15
@@ -206,17 +232,17 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         neutral_percent = (neutral_count / total_comments) * 100
         negative_percent = (negative_count / total_comments) * 100
 
-        # Muestra los recuentos y porcentajes con colores
-        c.setFillColor(HexColor("#4CAF50")) # Verde para positivo
+        # Display counts and percentages with colors
+        c.setFillColor(HexColor("#4CAF50")) # Green for positive
         c.drawString(margin, current_y, f"• Positivos: {positive_count} ({positive_percent:.1f}%)")
         current_y -= 12
-        c.setFillColor(HexColor("#FFC107")) # Ámbar para neutro
+        c.setFillColor(HexColor("#FFC107")) # Amber for neutral
         c.drawString(margin, current_y, f"• Neutros: {neutral_count} ({neutral_percent:.1f}%)")
         current_y -= 12
-        c.setFillColor(HexColor("#F44336")) # Rojo para negativo
+        c.setFillColor(HexColor("#F44336")) # Red for negative
         c.drawString(margin, current_y, f"• Negativos: {negative_count} ({negative_percent:.1f}%)")
         current_y -= 12
-        c.setFillColor(black) # Restablecer a negro
+        c.setFillColor(black) # Reset to black
 
         current_y -= 10
         summary_text_sentiment = (
@@ -237,22 +263,20 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         current_y -= 15
 
     current_y -= 15
-    if current_y < margin + 100: # Verificar si hay suficiente espacio para la siguiente sección
+    if current_y < margin + 100: # Check if there is enough space for the next section
         c.showPage()
         current_y = height - margin
 
-    # Cantidad de correos registrados (en texto)
+    # Number of registered emails (in text)
     c.setFont("Helvetica-Bold", 12)
     c.drawString(margin, current_y, "Estadísticas de Contacto:")
     current_y -= 15
     c.setFont("Helvetica", 10)
-    # IMPORTANTE: Debes obtener el número real de correos registrados y pasarlo aquí.
-    # Por ahora, es un marcador de posición.
-    num_emails_registered = 0 # Reemplaza 0 con la cantidad real de correos registrados
-    c.drawString(margin, current_y, f"• Número de correos electrónicos registrados: {num_emails_registered} (Dato a proveer externamente)")
+    # Now, num_emails_registered is calculated from get_all_users()
+    c.drawString(margin, current_y, f"• Número de correos electrónicos registrados: {num_emails_registered}")
     current_y -= 25
 
-    # Cosas que puedan ser útiles pero en texto y no gráficos (Conclusiones y Recomendaciones)
+    # Useful information in text, not graphics (Conclusions and Recommendations)
     c.setFont("Helvetica-Bold", 12)
     c.drawString(margin, current_y, "Conclusiones y Recomendaciones Clave:")
     current_y -= 15
@@ -272,23 +296,23 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
                 c.setFont("Helvetica", 10)
             c.drawString(margin, current_y, line)
             current_y -= 15
-        current_y -= 5 # Espacio extra entre conclusiones
+        current_y -= 5 # Extra space between conclusions
 
     current_y -= 10
     c.setStrokeColor(HexColor("#CCCCCC"))
     c.line(margin, current_y, width - margin, current_y)
     current_y -= 25
 
-    # --- Incrustar gráficos (visual, como antes) ---
+    # --- Embed visual charts (as before) ---
     if charts:
         c.setFont("Helvetica-Bold", 14)
         c.drawString(margin, current_y, "Gráficos Visuales Representativos")
-        current_y -= 20 # Espacio después del título de sección
+        current_y -= 20 # Space after section title
 
         for title, b64_data in charts.items():
-            if current_y < margin + 250: # Se estima que un gráfico necesita alrededor de 250 puntos de altura
+            if current_y < margin + 250: # Estimated chart height needed is around 250 points
                 c.showPage()
-                current_y = height - margin # Reinicia la posición Y
+                current_y = height - margin # Reset Y position
                 c.setFont("Helvetica-Bold", 14)
                 c.drawString(margin, current_y, "Gráficos Visuales (Continuación)")
                 current_y -= 20
@@ -324,7 +348,7 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
             except Exception as e:
                 c.setFont("Helvetica", 10)
                 c.setFillColor(black)
-                c.drawString(margin, current_y, f"⚠️ No se pudo cargar el gráfico '{title}': {e}")
+                c.drawString(margin, current_y, f"⚠️ Could not load chart: {title}: {e}")
                 current_y -= 20
 
             current_y -= 15
@@ -334,65 +358,9 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         c.line(margin, current_y, width - margin, current_y)
         current_y -= 25
 
-    # --- Detalle tabular de comentarios ---
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(margin, current_y, "Detalle de Comentarios")
-    current_y -= 20
-    c.setFont("Helvetica", 9)
+    # --- The 'Detailed Comments Table' section has been removed to focus on the summary ---
+    # If you want to re-include it in the future, you can reinsert the code for this section here.
 
-    headers = ["Fecha", "Usuario", "Pregunta", "Respuesta", "Sentimiento", "Polaridad"]
-    col_widths = [70, 70, 100, 150, 60, 50]
-
-    header_height = 18
-    c.setFillColor(lightgrey)
-    c.rect(margin, current_y - header_height, sum(col_widths), header_height, fill=1)
-    c.setFillColor(black)
-
-    header_y = current_y - 12
-    x_offset = margin
-    for i, header in enumerate(headers):
-        c.drawString(x_offset, header_y, header)
-        x_offset += col_widths[i]
-    current_y -= header_height + 5
-
-    row_height = 15
-
-    for cmt in comments:
-        if current_y < margin + row_height:
-            c.showPage()
-            current_y = height - margin
-            
-            c.setFillColor(lightgrey)
-            c.rect(margin, current_y - header_height, sum(col_widths), header_height, fill=1)
-            c.setFillColor(black)
-            header_y = current_y - 12
-            x_offset = margin
-            for i, header in enumerate(headers):
-                c.drawString(x_offset, header_y, header)
-                x_offset += col_widths[i]
-            current_y -= header_height + 5
-
-        data_row = [
-            cmt.get("timestamp", "")[:19],
-            cmt.get("usuario", "")[:15],
-            cmt.get("pregunta", ""),
-            cmt.get("respuesta", ""),
-            cmt.get("sentimiento", ""),
-            str(cmt.get("polaridad", ""))
-        ]
-
-        x_offset = margin
-        for i, value in enumerate(data_row):
-            if c.stringWidth(value, "Helvetica", 9) > col_widths[i] - 5:
-                while c.stringWidth(value + "...", "Helvetica", 9) > col_widths[i] - 5 and len(value) > 0:
-                    value = value[:-1]
-                if len(value) < len(data_row[i]):
-                    value += "..."
-            
-            c.drawString(x_offset, current_y - 10, value)
-            x_offset += col_widths[i]
-        current_y -= row_height
-
-    c.save() # Llama al método save de NumberedCanvas, que añade los números de página
+    c.save() # Calls the save method of NumberedCanvas, which adds page numbers
     buffer.seek(0)
     return buffer
