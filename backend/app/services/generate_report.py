@@ -1,10 +1,12 @@
 import io
 import os
 import requests
+import base64
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import simpleSplit
+from reportlab.lib.utils import ImageReader
 
 API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDzVyGvtw2qOhCzvOAzKvOCVPOC5s09bqY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
@@ -32,7 +34,7 @@ def get_summary_from_gemini(text: str) -> str:
         print("❌ Error al obtener resumen de Gemini:", e)
         return "No se pudo generar un resumen automático."
 
-def generate_comments_report(comments: list, filtros: dict = None) -> io.BytesIO:
+def generate_comments_report(comments: list, filtros: dict = None, charts: dict = None) -> io.BytesIO:
     all_text = " ".join(
         c.get("respuesta", "") for c in comments if isinstance(c.get("respuesta"), str)
     ).strip()
@@ -60,8 +62,6 @@ def generate_comments_report(comments: list, filtros: dict = None) -> io.BytesIO
         c.drawString(margin, y, f"Filtros aplicados: {filtros}")
         y -= 15
 
-    # Línea separadora
-    y -= 10
     c.line(margin, y, width - margin, y)
     y -= 25
 
@@ -78,14 +78,32 @@ def generate_comments_report(comments: list, filtros: dict = None) -> io.BytesIO
         c.drawString(margin, y, line)
         y -= 15
 
-    # Línea separadora
-    y -= 15
     c.line(margin, y, width - margin, y)
     y -= 25
 
+    # Incrustar gráficos
+    if charts:
+        for title, b64_data in charts.items():
+            c.setFont("Helvetica-Bold", 12)
+            c.drawString(margin, y, f"📊 {title}")
+            y -= 10
+            try:
+                image_data = base64.b64decode(b64_data.split(',')[1])
+                image = ImageReader(io.BytesIO(image_data))
+                c.drawImage(image, margin, y - 180, width=500, height=160)
+                y -= 200
+            except Exception as e:
+                c.setFont("Helvetica", 10)
+                c.drawString(margin, y, f"⚠️ No se pudo cargar el gráfico: {e}")
+                y -= 20
+
+            if y < 200:
+                c.showPage()
+                y = height - margin
+
     # Tabla de detalles
     c.setFont("Helvetica-Bold", 12)
-    c.drawString(margin, y, "📊 Detalle de Comentarios:")
+    c.drawString(margin, y, "📋 Detalle de Comentarios:")
     y -= 20
     c.setFont("Helvetica", 10)
 
