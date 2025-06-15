@@ -168,13 +168,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ====================================================================
     setInterval(async () => {
         console.log("⏱️ Auto-refresh ejecutado");
-    
-        const comments = await fetchComments(API_BASE_URL);
-        allCommentsData = comments;
-    
-        const processed = processCommentsData(allCommentsData);
-        updateCharts(processed);
-    }, 10000);    
+
+        try {
+            const comments = await fetchComments(API_BASE_URL);
+            
+            // ✅ Actualizamos la variable global sin reiniciar filtros
+            allCommentsData = comments;
+
+            // ✅ Aplicamos los filtros actuales de año
+            const filtered = comments.filter(c =>
+                selectedYears.has(new Date(c.timestamp).getFullYear().toString())
+            );
+
+            const processed = processCommentsData(filtered);
+            updateCharts(processed);
+        } catch (error) {
+            console.error("❌ Error durante auto-refresh:", error);
+        }
+    }, 10000);
 
         // ====================================================================
     // 📧 MOSTRAR LOG DE CORREOS ENVIADOS

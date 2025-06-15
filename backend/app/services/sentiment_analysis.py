@@ -5,30 +5,58 @@ import re
 API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyDzVyGvtw2qOhCzvOAzKvOCVPOC5s09bqY")
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={API_KEY}"
 
-def analyze_sentiment(text: str) -> str:
+# Fallback basado en respuestas típicas del cliente
+RESPUESTAS_COMUNES = {
+    "ok": "neutro",
+    "bien": "positivo",
+    "muy bien": "positivo",
+    "excelente": "positivo",
+    "todo bien": "positivo",
+    "normal": "neutro",
+    "más o menos": "neutro",
+    "regular": "neutro",
+    "meh": "neutro",
+    "la atención": "negativo",
+    "mal": "negativo",
+    "pésimo": "negativo",
+    "horrible": "negativo",
+    "nada": "negativo",
+    "no sé": "nulo",
+    "ns/nr": "nulo",
+}
+
+def interpretar_directo(respuesta: str) -> str:
+    """Evalúa respuestas breves sin llamar al modelo."""
+    r = respuesta.strip().lower()
+    return RESPUESTAS_COMUNES.get(r, None)
+
+def analyze_sentiment(question: str, answer: str) -> str:
     """
-    Analiza el sentimiento del comentario. Devuelve:
+    Analiza el sentimiento de una respuesta dada una pregunta.
+    Devuelve:
     - 'positivo'
     - 'negativo'
-    - 'neutro' si hay mezcla clara de sentimientos
-    - 'nulo' si la respuesta no tiene sentido con la pregunta
+    - 'neutro'
+    - 'nulo'
     """
+    # Verificación directa si la respuesta es una frase corta conocida
+    directo = interpretar_directo(answer)
+    if directo:
+        return directo
+
     headers = {"Content-Type": "application/json"}
     contexto = (
-        "Contexto: La empresa Alicia Modas es una PYME familiar ubicada en Mendoza, Argentina, "
-        "dedicada a la venta de indumentaria femenina y accesorios de moda. Ofrece productos de "
-        "fabricación propia y nacionales, destacándose por su atención personalizada y fuerte presencia en redes sociales."
+        "Contexto: Alicia Modas es una tienda de ropa femenina con buena atención y productos propios. "
+        "Queremos evaluar si los comentarios reflejan satisfacción, quejas o neutralidad."
     )
 
     prompt = (
         f"{contexto}\n"
-        f"Analiza el siguiente comentario del cliente y responde con una sola palabra entre las siguientes opciones:\n"
-        f"- positivo: si expresa satisfacción clara\n"
-        f"- negativo: si expresa una queja o disconformidad\n"
-        f"- neutro: si hay una mezcla de emociones positivas y negativas\n"
-        f"- nulo: si el comentario no tiene sentido o no está relacionado con la experiencia del cliente\n\n"
-        f"Comentario: \"{text}\"\n"
-        f"Respuesta:"
+        f"Clasifica el siguiente comentario SOLO con una palabra:\n"
+        f"- positivo\n- negativo\n- neutro\n- nulo (si no tiene sentido o no responde a la pregunta)\n\n"
+        f"Pregunta: \"{question}\"\n"
+        f"Comentario del cliente: \"{answer}\"\n"
+        f"Clasificación:"
     )
 
     payload = {
@@ -41,19 +69,19 @@ def analyze_sentiment(text: str) -> str:
         response = requests.post(GEMINI_URL, headers=headers, json=payload)
         if response.status_code == 200:
             data = response.json()
-            try:
-                result = data.get('candidates', [])[0]['content']['parts'][0]['text'].strip().lower()
-            except (IndexError, KeyError, AttributeError):
-                return "nulo"
+            result_text = data.get('candidates', [])[0]['content']['parts'][0]['text'].strip().lower()
 
-            if result in {"positivo", "negativo", "neutro"}:
-                # Verificación adicional de validez semántica para evitar que "hola" sea considerado neutro
-                palabras_validas = re.findall(r'\b[a-zA-ZáéíóúñÁÉÍÓÚÑ]{3,}\b', text)
-                if len(palabras_validas) < 3:  # requiere al menos 3 palabras sustanciales
-                    return "nulo"
-                return result
+            # Extraer la primera palabra válida
+            match = re.match(r"\b(positivo|negativo|neutro|nulo)\b", result_text)
+            if match:
+                return match.group(1)
 
-            return "nulo"
+            # Si responde con una oración, intentamos encontrar la palabra clave
+            for palabra in ["positivo", "negativo", "neutro", "nulo"]:
+                if palabra in result_text:
+                    return palabra
+
+            return "nulo"  # Si todo falla
 
         print(f"[ERROR {response.status_code}] {response.reason}")
         return "nulo"
