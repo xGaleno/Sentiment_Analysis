@@ -51,34 +51,40 @@ def get_summary_from_gemini(text: str) -> str:
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
-        self._saved_pages = [] # List to store states of each page
-        self.page_count = 0 # Initialize page counter
+        self._saved_pages = [] # Lista para almacenar el estado de cada página
+        self.page_count = 0 # Inicializar contador de páginas
 
     def showPage(self):
-        """Overrides the default showPage to save current page state and increment count."""
-        self._saved_pages.append(dict(self.__dict__)) # Save the current state
-        self.page_count += 1 # Increment page count
-        self._startPage() # Start a new page
+        """Sobrescribe el showPage por defecto para guardar el estado de la página actual e incrementar el contador."""
+        self.page_count += 1 # Incrementa el contador de página ANTES de guardar
+        self._saved_pages.append(dict(self.__dict__)) # Guarda el estado actual del canvas
+        self._startPage() # Inicia una nueva página en ReportLab
 
     def save(self):
-        """Overrides the default save to add page numbers to all saved pages."""
-        # Ensure the last page is counted and saved before iterating
-        if '_startPage' in self.__dict__: # Check if there's an active page
-            self.showPage() # Save the current (last) page
-            self.page_count -= 1 # showPage increments, but we just want to count the one before starting new
+        """Sobrescribe el save por defecto para añadir números de página a todas las páginas guardadas."""
+        # Asegurarse de que la última página activa se cuente y se guarde.
+        # ReportLab llama a showPage internamente al final de un save, pero esta llamada
+        # explícita garantiza que la última página sea procesada por nuestra lógica
+        # antes de la iteración final.
+        canvas.Canvas.showPage(self)
+        
+        total_pages = self.page_count # El page_count ya tiene el número total de páginas correcto.
 
         for page_number, page_dict in enumerate(self._saved_pages):
-            self.__dict__.update(page_dict) # Restore state of the page
-            self.draw_page_number(page_number + 1, self.page_count) # Draw number
-            canvas.Canvas.showPage(self) # Show the page (and effectively start next for reportlab internal mechanism)
-        canvas.Canvas.save(self) # Final save
+            self.__dict__.update(page_dict) # Restaurar el estado de la página
+            self.draw_page_number(page_number + 1, total_pages) # Dibujar el número de página
+            canvas.Canvas.showPage(self) # Mostrar la página (y efectivamente preparar la siguiente para el mecanismo interno de ReportLab)
+        
+        # El save final del canvas.Canvas original es el que escribe el PDF completo al buffer.
+        canvas.Canvas.save(self)
+
 
     def draw_page_number(self, page_num, total_pages):
-        """Draws the page number on the current page."""
-        width, height = letter # Get page dimensions
+        """Dibuja el número de página en la página actual."""
+        width, height = letter # Obtener dimensiones de la página
         self.setFont("Helvetica", 9)
         self.setFillColor(black)
-        # Position the page number at the bottom center of the page
+        # Posicionar el número de página en la parte inferior central de la página
         self.drawCentredString(width / 2, 0.75 * 50 / 2, f"Página {page_num} de {total_pages}")
 
 
@@ -92,8 +98,8 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         filtros (dict, opcional): Un diccionario de filtros aplicados al
                                   conjunto de comentarios.
         charts (dict, opcional): Un diccionario donde las claves son títulos
-                                 de gráficos y los valores son datos de imagen
-                                 codificados en base64 (ej. 'data:image/png;base64,...').
+                                  de gráficos y los valores son datos de imagen
+                                  codificados en base64 (ej. 'data:image/png;base64,...').
 
     Retorna:
         io.BytesIO: Un objeto de tipo BytesIO que contiene el PDF generado.
@@ -236,6 +242,18 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         c.drawString(margin, current_y, "No hay datos de sentimiento disponibles para analizar.")
         current_y -= 15
 
+    # --- INICIO DE SECCIÓN ELIMINADA: "Estadísticas de Contacto" ---
+    # Se eliminó la sección "Estadísticas de Contacto" como se solicitó.
+    # Las siguientes líneas (comentadas) eran parte de esa sección:
+    # current_y -= 15
+    # c.setFont("Helvetica-Bold", 12)
+    # c.drawString(margin, current_y, "Estadísticas de Contacto:")
+    # current_y -= 15
+    # c.setFont("Helvetica", 10)
+    # c.drawString(margin, current_y, "• Número de correos electrónicos registrados: 0 (Dato a proveer externamente)")
+    # current_y -= 12
+    # --- FIN DE SECCIÓN ELIMINADA ---
+
     current_y -= 15
     if current_y < margin + 100: # Verificar si hay suficiente espacio para la siguiente sección
         c.showPage()
@@ -275,6 +293,10 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         current_y -= 20 # Espacio después del título de sección
 
         for title, b64_data in charts.items():
+            print(f"DEBUG: Procesando gráfico '{title}'")
+            print(f"DEBUG: Los primeros 50 caracteres de b64_data: {b64_data[:50]}...")
+            print(f"DEBUG: Longitud total de b64_data: {len(b64_data)} caracteres")
+
             if current_y < margin + 250: # Se estima que un gráfico necesita alrededor de 250 puntos de altura
                 c.showPage()
                 current_y = height - margin # Reinicia la posición Y
@@ -288,9 +310,14 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
 
             try:
                 if ',' in b64_data:
-                    image_data = base64.b64decode(b64_data.split(',')[1])
+                    image_part = b64_data.split(',')[1]
+                    print("DEBUG: Se detectó prefijo de Data URI. Procesando la segunda parte.")
                 else:
-                    image_data = base64.b64decode(b64_data)
+                    image_part = b64_data
+                    print("DEBUG: No se detectó prefijo de Data URI. Procesando como Base64 puro.")
+                
+                image_data = base64.b64decode(image_part)
+                print(f"DEBUG: Datos de imagen decodificados con éxito. Tamaño: {len(image_data)} bytes")
                 
                 image = ImageReader(io.BytesIO(image_data))
                 
@@ -311,6 +338,8 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
                 current_y = img_y - 15
                 
             except Exception as e:
+                # Este 'except' es crucial. Si ves estos mensajes, el problema es el Base64.
+                print(f"❌ ERROR: Falló la decodificación o carga del gráfico '{title}': {e}")
                 c.setFont("Helvetica", 10)
                 c.setFillColor(black)
                 c.drawString(margin, current_y, f"⚠️ No se pudo cargar el gráfico '{title}': {e}")
@@ -322,6 +351,73 @@ def generate_comments_report(comments: list, filtros: dict = None, charts: dict 
         c.setStrokeColor(HexColor("#CCCCCC"))
         c.line(margin, current_y, width - margin, current_y)
         current_y -= 25
+
+    # --- INICIO DE SECCIÓN ELIMINADA: "Detalle de Comentarios" (Tabla) ---
+    # Se eliminó la sección "Detalle de Comentarios" (la tabla) como se solicitó.
+    # Las siguientes líneas (comentadas) eran parte de esa sección:
+    # if comments:
+    #     c.setFont("Helvetica-Bold", 14)
+    #     c.drawString(margin, current_y, "Detalle de Comentarios")
+    #     current_y -= 20
+    #     # Headers for the table
+    #     headers = ["Fecha", "Usuario", "Pregunta", "Respuesta", "Sentimiento", "Polaridad"]
+    #     col_widths = [70, 70, 100, 150, 60, 50] # Adjusted widths based on content
+    #     # Draw headers
+    #     c.setFont("Helvetica-Bold", 9)
+    #     start_x = margin
+    #     for i, header in enumerate(headers):
+    #         c.drawString(start_x, current_y, header)
+    #         start_x += col_widths[i]
+    #     current_y -= 15
+    #     # Draw comments
+    #     c.setFont("Helvetica", 8)
+    #     for comment in comments:
+    #         if current_y < margin + 50: # Check if new page is needed
+    #             c.showPage()
+    #             current_y = height - margin
+    #             # Redraw headers on new page
+    #             c.setFont("Helvetica-Bold", 9)
+    #             start_x = margin
+    #             for i, header in enumerate(headers):
+    #                 c.drawString(start_x, current_y, header)
+    #                 start_x += col_widths[i]
+    #             current_y -= 15
+    #             c.setFont("Helvetica", 8) # Reset font for content
+    #         
+    #         start_x = margin
+    #         # Need to handle potential multiple lines in response and question
+    #         max_lines = 1
+    #         wrapped_data = []
+    #         
+    #         # Wrap text for 'Pregunta' and 'Respuesta'
+    #         wrapped_pregunta = simpleSplit(comment.get("pregunta", ""), "Helvetica", 8, col_widths[2] - 5)
+    #         wrapped_respuesta = simpleSplit(comment.get("respuesta", ""), "Helvetica", 8, col_widths[3] - 5)
+    #         
+    #         max_lines = max(len(wrapped_pregunta), len(wrapped_respuesta), 1)
+    #         
+    #         # Pad wrapped lists to max_lines
+    #         wrapped_pregunta += [""] * (max_lines - len(wrapped_pregunta))
+    #         wrapped_respuesta += [""] * (max_lines - len(wrapped_respuesta))
+    #         
+    #         for i in range(max_lines):
+    #             line_y = current_y - (i * 10) # 10 points per line for multi-line text
+    #             
+    #             # Ensure 'fecha', 'usuario', 'sentimiento', 'polaridad' are only drawn once per comment
+    #             fecha_text = comment.get("fecha", "") if i == 0 else ""
+    #             usuario_text = comment.get("usuario", "") if i == 0 else ""
+    #             sentimiento_text = comment.get("sentimiento", "") if i == 0 else ""
+    #             polaridad_text = str(comment.get("polaridad", "")) if i == 0 else ""
+    #             
+    #             c.drawString(margin, line_y, fecha_text)
+    #             c.drawString(margin + col_widths[0], line_y, usuario_text)
+    #             c.drawString(margin + col_widths[0] + col_widths[1], line_y, wrapped_pregunta[i])
+    #             c.drawString(margin + col_widths[0] + col_widths[1] + col_widths[2], line_y, wrapped_respuesta[i])
+    #             c.drawString(margin + col_widths[0] + col_widths[1] + col_widths[2] + col_widths[3], line_y, sentimiento_text)
+    #             c.drawString(margin + col_widths[0] + col_widths[1] + col_widths[2] + col_widths[3] + col_widths[4], line_y, polaridad_text)
+    #             
+    #         current_y -= (max_lines * 10) + 5 # Move down for the next comment, plus a little extra space
+    #     current_y -= 15 # Space after comments table
+    # --- FIN DE SECCIÓN ELIMINADA ---
 
     c.save() # Llama al método save de NumberedCanvas, que añade los números de página
     buffer.seek(0)
