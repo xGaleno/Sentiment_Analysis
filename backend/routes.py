@@ -194,17 +194,24 @@ def register_routes(app):
     def generate_report():
         if request.method == 'OPTIONS':
             return '', 200
+
         comentarios = request.get_json().get("comentarios", [])
         if not comentarios:
             return jsonify({"error": "No se enviaron comentarios"}), 400
 
         buffer = generate_comments_report(comentarios)
+
+        # ✅ Muy importante: reposicionar el puntero al inicio
+        buffer.seek(0)
+
         return send_file(
             buffer,
             mimetype='application/pdf',
             as_attachment=True,
-            download_name='reporte_comentarios.pdf'
+            download_name='reporte_comentarios.pdf',
+            max_age=0  # para que no lo cachee
         )
+
 
     def send_email(recipient_email):
         sender_email = "aliciamodas.diha@gmail.com"
