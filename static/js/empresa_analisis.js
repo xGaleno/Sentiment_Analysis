@@ -135,15 +135,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         URL.revokeObjectURL(url);
     });
 
-    // ====================================================================
     // 📄 BOTÓN: GENERAR REPORTE PDF
-    // ====================================================================
     document.getElementById('generatePDFButton')?.addEventListener('click', async () => {
         try {
             const resComentarios = await fetch(`${API_BASE_URL}/comments`);
             if (!resComentarios.ok) throw new Error("No se pudieron obtener los comentarios.");
             const comentarios = await resComentarios.json();
-    
+
             // ✅ Filtrar por los años seleccionados
             const comentariosFiltrados = selectedYears.size > 0
                 ? comentarios.filter(c =>
@@ -151,26 +149,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 )
                 : comentarios;
 
-            // Enviamos solo los comentarios filtrados
+            // ✅ Construir nombre dinámico del archivo PDF
+            let nombrePDF = 'reporte_';
+            if (selectedYears.size > 0 && selectedYears.size < 3) {
+                nombrePDF += [...selectedYears].sort().join('-');
+            } else {
+                nombrePDF += 'todos_los_anios';
+            }
+            nombrePDF += '.pdf';
+
+            // ✅ Enviamos solo los comentarios filtrados
             const resPDF = await fetch(`${API_BASE_URL}/generate_report`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ comentarios: comentariosFiltrados })
             });
-    
+
             if (!resPDF.ok) throw new Error("Error al generar el PDF.");
             const blob = await resPDF.blob();
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'reporte_comentarios.pdf';
+            link.download = nombrePDF;  // ← 👈 este es dinámico
             link.click();
             URL.revokeObjectURL(url);
         } catch (err) {
             alert("Error generando el PDF: " + err.message);
             console.error(err);
         }
-    });    
+    });
 
     // ====================================================================
     // ⏱️ AUTO-REFRESH CADA 10 SEGUNDOS
