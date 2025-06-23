@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (row.respuesta || '').replace(/"/g, '""'),
                 row.timestamp || '',
                 row.usuario || '',
-                row.edad || 'Desconocida',
-                row.sentimiento || 'nulo'
+                row.edad || '',
+                row.sentimiento || ''
             ]);
         });
 
@@ -144,10 +144,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!resComentarios.ok) throw new Error("No se pudieron obtener los comentarios.");
             const comentarios = await resComentarios.json();
     
+            // ✅ Filtrar por los años seleccionados
+            const comentariosFiltrados = selectedYears.size > 0
+                ? comentarios.filter(c =>
+                    selectedYears.has(new Date(c.timestamp).getFullYear().toString())
+                )
+                : comentarios;
+
+            // Enviamos solo los comentarios filtrados
             const resPDF = await fetch(`${API_BASE_URL}/generate_report`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ comentarios })
+                body: JSON.stringify({ comentarios: comentariosFiltrados })
             });
     
             if (!resPDF.ok) throw new Error("Error al generar el PDF.");
