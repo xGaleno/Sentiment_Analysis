@@ -56,7 +56,7 @@ def register_routes(app):
         except Exception as e:
             return jsonify({"error": f"Error registering user: {str(e)}"}), 500
 
-    # === ANÁLISIS DE SENTIMIENTO ===
+       # === ANÁLISIS DE SENTIMIENTO ===
     @app.route('/api/sentiment_analysis', methods=['POST'])
     def sentiment_analysis():
         data = request.json
@@ -84,12 +84,18 @@ def register_routes(app):
             if not texto or not pregunta:
                 continue
 
-            sentimiento = analyze_sentiment(texto)
+            # ✅ Corrección: pasar ambos argumentos como lo requiere la función
+            sentimiento = analyze_sentiment(pregunta, texto)
+
             if sentimiento == "Error":
                 sentimiento = "nulo"
                 polaridad = 0.0
             else:
-                polaridad = 0.5 if sentimiento == "positivo" else -0.5 if sentimiento == "negativo" else 0.0
+                polaridad = (
+                    0.5 if sentimiento == "positivo"
+                    else -0.5 if sentimiento == "negativo"
+                    else 0.0
+                )
 
             add_comment(email, pregunta, texto, sentimiento, polaridad)
 
