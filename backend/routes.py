@@ -132,6 +132,7 @@ def register_routes(app):
                     "respuesta": c.get("respuesta"),
                     "sentimiento": c.get("sentimiento"),
                     "polaridad": c.get("polaridad"),
+                    "edad": c.get("edad"),
                     "timestamp": ts_str
                 })
             elapsed = time.time() - start

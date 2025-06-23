@@ -112,13 +112,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const res = await fetch(`${API_BASE_URL}/comments`);
         const comentarios = await res.json();
 
-        const csvRows = [["Comentario", "Fecha", "Correo", "Edad"]];
+        const csvRows = [["Comentario", "Fecha", "Correo", "Edad", "Sentimiento"]];
         comentarios.forEach(row => {
             csvRows.push([
                 (row.respuesta || '').replace(/"/g, '""'),
                 row.timestamp || '',
                 row.usuario || '',
-                row.edad || 'Desconocida'
+                row.edad || 'Desconocida',
+                row.sentimiento || 'nulo'
             ]);
         });
 

@@ -84,12 +84,15 @@ def delete_user_by_email(email):
 
 def add_comment(usuario, pregunta, respuesta, sentimiento, polaridad):
     db = get_db()
+    user_doc = db.collection('users').document(usuario).get()
+    edad = user_doc.to_dict().get("age") if user_doc.exists else None
     db.collection('comments').add({
         'usuario': usuario,
         'pregunta': pregunta,
         'respuesta': respuesta,
         'sentimiento': sentimiento,
         'polaridad': polaridad,
+        'edad': edad,
         'timestamp': firestore.SERVER_TIMESTAMP
     })
 
